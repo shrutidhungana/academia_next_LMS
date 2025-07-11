@@ -1,0 +1,63 @@
+# Node.js dependencies
+**/node_modules/
+**/dist/
+**/build/
+**/.turbo/
+
+# TypeScript cache
+**/*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+**/.env
+**/.env.*.local
+**/.env.local
+.env
+.env.*.local
+
+# IDEs and editors
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Docker
+docker-compose.yml
+**/docker-compose.override.yml
+**/Dockerfile.local
+**/.docker/
+**/tmp/
+
+# Mac system files
+.DS_Store
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Test coverage
+coverage/
+*.lcov
+
+# PM2 process logs
+pids/
+pm2.log
+
+# Optional: If using uploads/temp files
+uploads/
+temp/
