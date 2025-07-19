@@ -15,6 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <Navbar
+        
         navItems={NAV_ITEMS}
         logoTitle="ACADEMIA NEXT"
         logo="/favicon-v2.ico"
