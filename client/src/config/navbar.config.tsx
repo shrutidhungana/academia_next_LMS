@@ -15,39 +15,39 @@ import {
 export const NAV_ITEMS: NavItem[] = [
   {
     label: "Courses",
-    href: "/courses",
+    href: "/guest/courses",
     icon: FaBook,
   },
   {
     label: "About",
-    href: "/about",
+    href: "/guest/about",
     icon: FaInfoCircle,
   },
 
   {
     label: "Blog",
-    href: "/blog",
+    href: "/guest/blog",
     icon: FaBlog,
   },
   {
     label: "Features",
-    href: "/features",
+    href: "/guest/features",
     icon: FaTags,
   },
   {
     label: "Contact",
-    href: "/contact",
+    href: "/guest/contact",
     icon: FaPhone,
   },
   {
     label: "Login",
-    href: "/login",
+    href: "/auth/login",
     icon: FaUser,
     cta: true,
   },
   {
     label: "Register",
-    href: "/register",
+    href: "/auth/register",
     icon: FaUserPlus,
     cta: true,
   },
