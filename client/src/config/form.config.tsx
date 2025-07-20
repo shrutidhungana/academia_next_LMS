@@ -1,6 +1,6 @@
 // form.config.ts
 
-import {  FormSection } from "@/types";
+import { FormSection, FormField } from "@/types";
 
 export const REGISTER_FORM_FIELDS: FormSection[] = [
   // General Information section
@@ -88,9 +88,24 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Canada",
         ],
       },
-      { name: "state", label: "State/Province", type: "text", required: false },
-      { name: "city", label: "City", type: "text", required: false },
-      { name: "zip", label: "Zip/Postal Code", type: "text", required: false },
+      {
+        name: "state",
+        label: "State/Province",
+        type: "text",
+        required: false
+      },
+      {
+        name: "city",
+        label: "City",
+        type: "text",
+        required: false
+      },
+      {
+        name: "zip",
+        label: "Zip/Postal Code",
+        type: "text",
+        required: false
+      },
       {
         name: "address1",
         label: "Address Line 1",
@@ -162,7 +177,12 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         type: "checkbox",
         required: true,
       },
-      { name: "captcha", label: "Captcha ", type: "text", required: true },
+      {
+        name: "captcha",
+        label: "Captcha ",
+        type: "text",
+        required: true
+      },
     ],
     fieldGroups: [
       ["roles"],
@@ -171,5 +191,21 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
       ["terms"],
       ["captcha"],
     ],
+  },
+];
+
+export const LOGIN_FORM_FIELDS: FormField[] = [
+  { name: "email", label: "Email ", type: "email", required: true },
+  {
+    name: "password",
+    label: "Password ",
+    type: "password",
+    required: true,
+  },
+  {
+    name: "captcha",
+    label: "Captcha ",
+    type: "text",
+    required: true,
   },
 ];
