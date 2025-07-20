@@ -25,7 +25,10 @@ const Login: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Welcome to Academia-Next" subtitle="Login to  your account now">
+    <AuthLayout
+      title="Welcome to Academia-Next"
+      subtitle="Login to  your account now"
+    >
       <div className="w-full max-w-3xl space-y-6">
         {/* Registration form */}
         <CommonForm
@@ -34,9 +37,15 @@ const Login: React.FC = () => {
           setFormData={setFormData}
           onSubmit={handleSubmit}
           buttonText="Login"
-          
         />
-
+        <p className="text-sm text-right mt-1">
+          <Link
+            href="/auth/forget-password"
+            className="text-indigo-600 hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </p>
         {/* Divider text */}
         <div className="mt-10 text-center text-sm text-muted-foreground">
           OR CONTINUE WITH
