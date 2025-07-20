@@ -39,3 +39,5 @@ export type SocialProvider = {
   LogoComponent?: React.FC<React.SVGProps<SVGSVGElement>>;
 };
 
+
+
