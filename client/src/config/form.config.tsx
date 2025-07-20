@@ -1,13 +1,15 @@
-import { FormField } from "@/types";
+// form.config.ts
 
-export const REGISTER_FORM_FIELDS: FormField[] = [
-  // General Information
+import {  FormSection } from "@/types";
+
+export const REGISTER_FORM_FIELDS: FormSection[] = [
+  // General Information section
   {
     section: "General Information",
     fields: [
       {
         name: "firstName",
-        label: "First Name *",
+        label: "First Name ",
         type: "text",
         required: true,
       },
@@ -17,22 +19,22 @@ export const REGISTER_FORM_FIELDS: FormField[] = [
         type: "text",
         required: false,
       },
-      { name: "lastName", label: "Last Name *", type: "text", required: true },
-      { name: "username", label: "Username *", type: "text", required: true },
-      { name: "email", label: "Email *", type: "email", required: true },
+      { name: "lastName", label: "Last Name ", type: "text", required: true },
+      { name: "username", label: "Username ", type: "text", required: true },
+      { name: "phone", label: "Phone Number", type: "tel", required: false },
+      { name: "email", label: "Email ", type: "email", required: true },
       {
         name: "password",
-        label: "Password *",
+        label: "Password ",
         type: "password",
         required: true,
       },
       {
         name: "confirmPassword",
-        label: "Confirm Password *",
+        label: "Confirm Password ",
         type: "password",
         required: true,
       },
-      { name: "phone", label: "Phone Number", type: "tel", required: false },
       {
         name: "gender",
         label: "Gender",
@@ -60,15 +62,22 @@ export const REGISTER_FORM_FIELDS: FormField[] = [
         required: false,
       },
     ],
+    fieldGroups: [
+      ["firstName", "middleName", "lastName"],
+      ["username", "phone"],
+      ["email", "password", "confirmPassword"],
+      ["gender", "maritalStatus"],
+      ["dateOfBirth", "profilePicture"],
+    ],
   },
 
-  // Location Information
+  // Location Information section
   {
     section: "Location Information",
     fields: [
       {
         name: "country",
-        label: "Country *",
+        label: "Country ",
         type: "select",
         required: true,
         options: [
@@ -77,7 +86,6 @@ export const REGISTER_FORM_FIELDS: FormField[] = [
           "United States",
           "United Kingdom",
           "Canada",
-          // Add more countries as needed
         ],
       },
       { name: "state", label: "State/Province", type: "text", required: false },
@@ -96,15 +104,22 @@ export const REGISTER_FORM_FIELDS: FormField[] = [
         required: false,
       },
     ],
+    fieldGroups: [
+      ["country"],
+      ["state", "city"],
+      ["zip"],
+      ["address1"],
+      ["address2"],
+    ],
   },
 
-  // Other Information
+  // Other Information section
   {
     section: "Other Information",
     fields: [
       {
         name: "roles",
-        label: "Select Roles *",
+        label: "Select Roles ",
         type: "multiselect",
         required: true,
         options: [
@@ -143,11 +158,18 @@ export const REGISTER_FORM_FIELDS: FormField[] = [
       },
       {
         name: "terms",
-        label: "I agree to Terms & Conditions *",
+        label: "I agree to Terms & Conditions ",
         type: "checkbox",
         required: true,
       },
-      { name: "captcha", label: "Captcha *", type: "text", required: true }, // You can replace with real captcha component later
+      { name: "captcha", label: "Captcha ", type: "text", required: true },
+    ],
+    fieldGroups: [
+      ["roles"],
+      ["organization", "jobTitle", "department"],
+      ["howDidYouHear"],
+      ["terms"],
+      ["captcha"],
     ],
   },
 ];

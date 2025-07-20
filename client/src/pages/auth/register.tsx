@@ -4,6 +4,7 @@ import CommonForm from "@/components/common/Forms";
 import ContinueWithButtons from "@/components/auth/oauth";
 import { REGISTER_FORM_FIELDS } from "@/config/form.config";
 import { SOCIAL_PROVIDERS } from "@/config/oauth.config";
+import Link from "next/link";
 
 type FormData = {
   [key: string]: unknown;
@@ -51,9 +52,12 @@ const Register: React.FC = () => {
         {/* Login link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <a href="/login" className="font-medium text-primary hover:underline">
+          <Link
+            href="/auth/login"
+            className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+          >
             Log in
-          </a>
+          </Link>
         </p>
       </div>
     </AuthLayout>
