@@ -1,18 +1,13 @@
-// form.config.ts
-
 import { FormSection, FormField } from "@/types";
 
+const toOptions = (options: string[]) =>
+  options.map((val) => ({ id: val, label: val }));
+
 export const REGISTER_FORM_FIELDS: FormSection[] = [
-  // General Information section
   {
     section: "General Information",
     fields: [
-      {
-        name: "firstName",
-        label: "First Name ",
-        type: "text",
-        required: true,
-      },
+      { name: "firstName", label: "First Name ", type: "text", required: true },
       {
         name: "middleName",
         label: "Middle Name",
@@ -40,14 +35,14 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         label: "Gender",
         type: "select",
         required: false,
-        options: ["Male", "Female", "Other", "Prefer not to say"],
+        options: toOptions(["Male", "Female", "Other", "Prefer not to say"]),
       },
       {
         name: "maritalStatus",
         label: "Marital Status",
         type: "select",
         required: false,
-        options: ["Single", "Married", "Other"],
+        options: toOptions(["Single", "Married", "Other"]),
       },
       {
         name: "dateOfBirth",
@@ -70,8 +65,6 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
       ["dateOfBirth", "profilePicture"],
     ],
   },
-
-  // Location Information section
   {
     section: "Location Information",
     fields: [
@@ -80,32 +73,17 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         label: "Country ",
         type: "select",
         required: true,
-        options: [
+        options: toOptions([
           "Nepal",
           "India",
           "United States",
           "United Kingdom",
           "Canada",
-        ],
+        ]),
       },
-      {
-        name: "state",
-        label: "State/Province",
-        type: "text",
-        required: false
-      },
-      {
-        name: "city",
-        label: "City",
-        type: "text",
-        required: false
-      },
-      {
-        name: "zip",
-        label: "Zip/Postal Code",
-        type: "text",
-        required: false
-      },
+      { name: "state", label: "State/Province", type: "text", required: false },
+      { name: "city", label: "City", type: "text", required: false },
+      { name: "zip", label: "Zip/Postal Code", type: "text", required: false },
       {
         name: "address1",
         label: "Address Line 1",
@@ -127,17 +105,15 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
       ["address2"],
     ],
   },
-
-  // Other Information section
   {
     section: "Other Information",
     fields: [
       {
         name: "roles",
-        label: "Select Roles ",
+        label: "Select Roles",
         type: "multiselect",
         required: true,
-        options: [
+        options: toOptions([
           "Super Admin",
           "Admin",
           "Tenant Admin",
@@ -145,7 +121,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Student",
           "Parent",
           "Guest",
-        ],
+        ]),
       },
       {
         name: "organization",
@@ -177,12 +153,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         type: "checkbox",
         required: true,
       },
-      {
-        name: "captcha",
-        label: "Captcha ",
-        type: "text",
-        required: true
-      },
+      { name: "captcha", label: "Captcha", type: "text", required: true },
     ],
     fieldGroups: [
       ["roles"],
@@ -196,16 +167,5 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
 
 export const LOGIN_FORM_FIELDS: FormField[] = [
   { name: "email", label: "Email ", type: "email", required: true },
-  {
-    name: "password",
-    label: "Password ",
-    type: "password",
-    required: true,
-  },
-  {
-    name: "captcha",
-    label: "Captcha ",
-    type: "text",
-    required: true,
-  },
+  { name: "password", label: "Password ", type: "password", required: true },
 ];

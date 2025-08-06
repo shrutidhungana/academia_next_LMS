@@ -85,16 +85,38 @@ const CommonForm = <T extends Record<string, unknown>>({
             </Select.Content>
           </Select.Root>
         );
+      case "multiselect":
+        const selectedValues = (formData[control.name] || []) as string[];
+        const toggleValue = (value: string) => {
+          const updated = selectedValues.includes(value)
+            ? selectedValues.filter((v) => v !== value)
+            : [...selectedValues, value];
+          setFormData({ ...formData, [control.name]: updated });
+        };
+        return (
+          <div className="flex flex-wrap gap-3">
+            {control.options?.map((option) => (
+              <label
+                key={option.id}
+                className="flex items-center gap-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedValues.includes(option.id)}
+                  onChange={() => toggleValue(option.id)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        );
       case "checkbox":
         return (
           <label className="flex items-center gap-2">
             <Checkbox.Root
               checked={Boolean(formData[control.name])}
               onCheckedChange={(checked) =>
-                setFormData({
-                  ...formData,
-                  [control.name]: !!checked,
-                })
+                setFormData({ ...formData, [control.name]: !!checked })
               }
               className="flex h-[18px] w-[18px] items-center justify-center rounded border border-gray-300 bg-white shadow-sm"
             >
@@ -121,14 +143,11 @@ const CommonForm = <T extends Record<string, unknown>>({
       const shouldBreak =
         forceOnePerRow ||
         currentRow.length === 3 ||
-        field.type === "textarea" ||
-        field.type === "checkbox" ||
-        field.type === "multiselect" ||
-        field.type === "file" ||
-        nextField?.type === "textarea" ||
-        nextField?.type === "checkbox" ||
-        nextField?.type === "multiselect" ||
-        nextField?.type === "file";
+        ["textarea", "checkbox", "multiselect", "file"].includes(field.type) ||
+        ["textarea", "checkbox", "multiselect", "file"].includes(
+          nextField?.type || ""
+        ) ||
+        i === fields.length - 1;
 
       if (shouldBreak || i === fields.length - 1) {
         rows.push(currentRow);
@@ -150,7 +169,7 @@ const CommonForm = <T extends Record<string, unknown>>({
       >
         {row.map((control) => (
           <div key={control.name} className="flex flex-col">
-            {control.type !== "checkbox" && control.type !== "multiselect" && (
+            {control.type !== "checkbox" && (
               <label
                 htmlFor={control.name}
                 className="mb-1 block text-sm font-medium text-indigo-900"
@@ -176,8 +195,7 @@ const CommonForm = <T extends Record<string, unknown>>({
   return (
     <form onSubmit={onSubmit} className="space-y-8">
       {isSectionBased
-        ? // Multi-section form like Register
-          (formControls as SectionField[]).map(({ section, fields }) => (
+        ? (formControls as SectionField[]).map(({ section, fields }) => (
             <section key={section}>
               <h3 className="mb-6 border-b border-indigo-300 pb-2 text-2xl font-semibold text-indigo-700">
                 {section}
@@ -185,8 +203,7 @@ const CommonForm = <T extends Record<string, unknown>>({
               <div>{renderFieldGroups(fields)}</div>
             </section>
           ))
-        : // Flat form like Login — force 1 field per row
-          renderFieldGroups(formControls as FormControl[], true)}
+        : renderFieldGroups(formControls as FormControl[], true)}
 
       <div>
         <Button
