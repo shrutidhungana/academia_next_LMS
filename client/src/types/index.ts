@@ -24,7 +24,7 @@ export type FormField = {
   label: string;
   type: FieldType;
   required: boolean;
-  options?: string[];
+  options?: { id: string; label: string }[];
 };
 
 export type FormSection = {
