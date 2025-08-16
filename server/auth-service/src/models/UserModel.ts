@@ -36,8 +36,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
     ) VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11, $12, $13,
-      $14, $15, $16, $17, $18, $19, $20,
-      $21
+      $14, $15, $16, $17, $18::text[], $19, $20, $21, $22
     ) RETURNING *`,
     [
       first_name,
@@ -57,7 +56,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
       zip,
       address1,
       address2,
-      roles,
+      roles, // JS array cast to text[]
       organization,
       department,
       job_title,
