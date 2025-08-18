@@ -8,6 +8,7 @@ import {
   forgotPassword,
   resetPassword,
   getAuthUser,
+  resendOtp,
 } from "../controllers/authController";
 import { verifyAccessToken } from "../services/tokenService";
 
@@ -21,6 +22,7 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
+router.post("/resend-otp", resendOtp);
 
 // Protected route
 router.get("/me", verifyAccessToken, getAuthUser);
