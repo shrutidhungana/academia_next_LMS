@@ -5,6 +5,10 @@ import ContinueWithButtons from "@/components/auth/oauth";
 import { REGISTER_FORM_FIELDS } from "@/config/form.config";
 import { SOCIAL_PROVIDERS } from "@/config/oauth.config";
 import Link from "next/link";
+import { useRegister } from "@/hooks/authHooks/useRegister";
+import { useDispatch } from "react-redux";
+import { setRegisterData, setSubmitting } from "@/store/auth-slice";
+import {useToast } from "@/hooks/useToast";
 
 type FormData = {
   [key: string]: unknown;
@@ -12,13 +16,32 @@ type FormData = {
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ roles: [] });
+ const dispatch = useDispatch();
+ 
+ const { showSuccess, showError } = useToast();
+ const { mutate, isPending } = useRegister();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // TODO: Add validation & API call
-  };
+ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+   e.preventDefault();
+   dispatch(setSubmitting(true));
+   dispatch(setRegisterData(formData as any));
 
+   mutate(formData as any, {
+     onSuccess: (res: any) => {
+       // Backend sends { status, message, data }
+       showSuccess(res.message || "Registration successful!");
+     },
+     onError: (err: any) => {
+       // If backend sends error message in response
+       const message =
+         err?.response?.data?.message || "Registration failed. Try again.";
+       showError(message);
+     },
+     onSettled: () => {
+       dispatch(setSubmitting(false));
+     },
+   });
+ };
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
     // TODO: Trigger OAuth flow (NextAuth etc.)

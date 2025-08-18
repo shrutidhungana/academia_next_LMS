@@ -39,5 +39,31 @@ export type SocialProvider = {
   LogoComponent?: React.FC<React.SVGProps<SVGSVGElement>>;
 };
 
-
+export type RegisterPayload = {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  username: string;
+  phone?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  gender?: string;
+  maritalStatus?: string;
+  dateOfBirth?: string;
+  profilePicture?: File | null;
+  country: string;
+  state?: string;
+  city?: string;
+  zip?: string;
+  address1?: string;
+  address2?: string;
+  roles: string[];
+  organization?: string;
+  department?: string;
+  jobTitle?: string;
+  howDidYouHear?: string;
+  terms: boolean;
+  captcha: string;
+};
 

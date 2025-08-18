@@ -18,7 +18,7 @@ import {
 import { sendEmailOtp } from "../utils/emailUtil";
 import pool from "../database";
 
-const OTP_EXPIRY_MINUTES = 10;
+const OTP_EXPIRY_MINUTES = 20;
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -114,9 +114,9 @@ export const confirmEmail = async (req: Request, res: Response) => {
     await verifyUserEmail(user.id);
     await deleteOtp(user.id, "verify_email");
 
-    return res.json({ message: "Email verified successfully" });
+    return res.json({ status:200, message: "Email verified successfully" });
   } catch (err) {
-    return res.status(500).json({ message: "Verification failed" });
+    return res.status(500).json({ status:500, message: "Verification failed" });
   }
 };
 
@@ -235,4 +235,29 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const getAuthUser = async (req: Request, res: Response) => {
   const user = (req as any).user;
   return res.json({ message: "Authenticated", data: user });
+};
+
+export const resendOtp = async (req: Request, res: Response) => {
+  try {
+    const { email, purpose = "verify_email" } = req.body;
+    const user = await findUserByEmail(email);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
+
+    // delete old OTP
+    await deleteOtp(user.id, purpose);
+
+    // save new OTP
+    await createOtp(user.id, otp, purpose, expiresAt);
+
+    // send email
+    await sendEmailOtp(email, otp, "Your new OTP code");
+
+    return res.json({ status: 200, message: "New OTP sent to email" });
+  } catch (err: any) {
+    console.error("Resend OTP Error:", err.message);
+    return res.status(500).json({ message: "Resend OTP failed" });
+  }
 };
