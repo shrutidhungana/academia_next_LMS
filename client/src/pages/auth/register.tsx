@@ -5,10 +5,10 @@ import ContinueWithButtons from "@/components/auth/oauth";
 import { REGISTER_FORM_FIELDS } from "@/config/form.config";
 import { SOCIAL_PROVIDERS } from "@/config/oauth.config";
 import Link from "next/link";
-import { useRegister } from "@/hooks/authHooks/useRegister";
 import { useDispatch } from "react-redux";
-import { setRegisterData, setSubmitting } from "@/store/auth-slice";
-import {useToast } from "@/hooks/useToast";
+import { useToast } from "@/hooks/useToast";
+import useAuth from "@/hooks/authHooks/useAuth";
+import { setUser, setAccessToken } from "@/store/auth-slice";
 
 type FormData = {
   [key: string]: unknown;
@@ -16,41 +16,45 @@ type FormData = {
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ roles: [] });
- const dispatch = useDispatch();
- 
- const { showSuccess, showError } = useToast();
- const { mutate, isPending } = useRegister();
+  const dispatch = useDispatch();
+  const { showSuccess, showError } = useToast();
+  const { registerMutation } = useAuth();
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
- const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-   e.preventDefault();
-   dispatch(setSubmitting(true));
-   dispatch(setRegisterData(formData as any));
+  try {
+    // Call register mutation
+    const response = await registerMutation.mutateAsync(formData);
 
-   mutate(formData as any, {
-     onSuccess: (res: any) => {
-       // Backend sends { status, message, data }
-       showSuccess(res.message || "Registration successful!");
-     },
-     onError: (err: any) => {
-       // If backend sends error message in response
-       const message =
-         err?.response?.data?.message || "Registration failed. Try again.";
-       showError(message);
-     },
-     onSettled: () => {
-       dispatch(setSubmitting(false));
-     },
-   });
- };
+    // Update Redux store with actual user
+    const user = response.data;
+    dispatch(setUser(user));
+    if (user.accessToken) dispatch(setAccessToken(user.accessToken));
+
+    // Show backend success message
+    showSuccess(response.message);
+
+    // Reset form
+    setFormData({ roles: [] });
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      showError(error.response.data.message);
+    } else if (error.response?.data?.error) {
+      showError(error.response.data.error);
+    } else {
+      showError(error.message || "Registration failed");
+    }
+  }
+};
+
+
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
-    // TODO: Trigger OAuth flow (NextAuth etc.)
   };
 
   return (
     <AuthLayout title="Join Academia-Next" subtitle="Create your account now">
       <div className="w-full max-w-3xl space-y-6">
-        {/* Registration form */}
         <CommonForm
           formControls={REGISTER_FORM_FIELDS}
           formData={formData}
@@ -59,12 +63,10 @@ const Register: React.FC = () => {
           buttonText="Register"
         />
 
-        {/* Divider text */}
         <div className="mt-10 text-center text-sm text-muted-foreground">
           OR CONTINUE WITH
         </div>
 
-        {/* Social login buttons */}
         <ContinueWithButtons
           providers={SOCIAL_PROVIDERS.map((provider) => ({
             ...provider,
@@ -72,7 +74,6 @@ const Register: React.FC = () => {
           }))}
         />
 
-        {/* Login link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link
@@ -86,6 +87,5 @@ const Register: React.FC = () => {
     </AuthLayout>
   );
 };
-
 
 export default Register;
