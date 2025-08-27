@@ -1,0 +1,168 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { apiEndpoints } from "@/utils/authAPI";
+import {
+  RegisterPayload,
+  LoginPayload,
+  ConfirmEmailPayload,
+  ForgotPasswordPayload,
+  ResetPasswordPayload,
+  ResendOtpPayload,
+  UserResponse,
+} from "@/types";
+
+const {
+  register,
+  confirmEmail,
+  login,
+  forgotPassword,
+  resetPassword,
+  refreshToken,
+  logout,
+  resendOtp,
+  verifyAccessToken,
+  auth,
+} = apiEndpoints;
+
+const useAuth = () => {
+  const queryClient = useQueryClient();
+
+  // ---------------- Queries ----------------
+  const authUserQuery = useQuery<UserResponse, Error>({
+    queryKey: ["authUser"],
+    queryFn: async () => {
+      const res = await axios.get<UserResponse>(verifyAccessToken, {
+        withCredentials: true,
+      });
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const checkAuthQuery = useQuery<{ authenticated: boolean }, Error>({
+    queryKey: ["checkAuth"],
+    queryFn: async () => {
+      const res = await axios.get<{ authenticated: boolean }>(auth, {
+        withCredentials: true,
+      });
+      return res.data;
+    },
+  });
+
+  // ---------------- Mutations ----------------
+ const registerMutation = useMutation<
+   {
+     status: number;
+     message: string;
+     data: UserResponse;
+   },
+   Error,
+   RegisterPayload
+ >({
+   mutationFn: async (payload: RegisterPayload) => {
+     const res = await axios.post(register, payload);
+     return res.data; // {status, message, data}
+   },
+   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+ });
+
+  const confirmEmailMutation = useMutation<
+    UserResponse,
+    Error,
+    ConfirmEmailPayload
+  >({
+    mutationFn: async (payload: ConfirmEmailPayload) => {
+      const res = await axios.post<UserResponse>(confirmEmail, payload);
+      return res.data;
+    },
+  });
+
+  const loginMutation = useMutation<UserResponse, Error, LoginPayload>({
+    mutationFn: async (payload: LoginPayload) => {
+      const res = await axios.post<UserResponse>(login, payload, {
+        withCredentials: true,
+      });
+      return res.data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+  });
+
+  const forgotPasswordMutation = useMutation<
+    { message: string },
+    Error,
+    ForgotPasswordPayload
+  >({
+    mutationFn: async (payload: ForgotPasswordPayload) => {
+      const res = await axios.post<{ message: string }>(
+        forgotPassword,
+        payload
+      );
+      return res.data;
+    },
+  });
+
+  const resetPasswordMutation = useMutation<
+    { message: string },
+    Error,
+    ResetPasswordPayload
+  >({
+    mutationFn: async (payload: ResetPasswordPayload) => {
+      const res = await axios.post<{ message: string }>(resetPassword, payload);
+      return res.data;
+    },
+  });
+
+  const refreshTokenMutation = useMutation<UserResponse, Error>({
+    mutationFn: async () => {
+      const res = await axios.post<UserResponse>(
+        refreshToken,
+        {},
+        { withCredentials: true }
+      );
+      return res.data;
+    },
+  });
+
+  const logoutMutation = useMutation<{ message: string }, Error>({
+    mutationFn: async () => {
+      const res = await axios.post<{ message: string }>(
+        logout,
+        {},
+        { withCredentials: true }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["authUser"] });
+    },
+  });
+
+  const resendOtpMutation = useMutation<
+    { message: string },
+    Error,
+    ResendOtpPayload
+  >({
+    mutationFn: async (payload: ResendOtpPayload) => {
+      const res = await axios.post<{ message: string }>(resendOtp, payload);
+      return res.data;
+    },
+  });
+
+  return {
+    // Queries
+    authUserQuery,
+    checkAuthQuery,
+
+    // Mutations
+    registerMutation,
+    confirmEmailMutation,
+    loginMutation,
+    forgotPasswordMutation,
+    resetPasswordMutation,
+    refreshTokenMutation,
+    logoutMutation,
+    resendOtpMutation,
+  };
+};
+
+export default useAuth;
