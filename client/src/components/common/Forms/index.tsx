@@ -6,6 +6,7 @@ import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import * as Select from "@radix-ui/react-select";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import clsx from "clsx";
+import FileInput from "../File"; // New reusable file input component
 
 export type FormControl = {
   name: string;
@@ -53,6 +54,7 @@ const CommonForm = <T extends Record<string, unknown>>({
     switch (control.type) {
       case "textarea":
         return <textarea rows={4} {...commonProps} />;
+
       case "select":
         return (
           <Select.Root
@@ -85,6 +87,7 @@ const CommonForm = <T extends Record<string, unknown>>({
             </Select.Content>
           </Select.Root>
         );
+
       case "multiselect":
         const selectedValues = (formData[control.name] || []) as string[];
         const toggleValue = (value: string) => {
@@ -110,6 +113,7 @@ const CommonForm = <T extends Record<string, unknown>>({
             ))}
           </div>
         );
+
       case "checkbox":
         return (
           <label className="flex items-center gap-2">
@@ -127,6 +131,25 @@ const CommonForm = <T extends Record<string, unknown>>({
             <span className="text-sm text-gray-800">{control.label}</span>
           </label>
         );
+
+      case "file":
+        // Decide variant based on field name
+        const variant =
+          control.name === "profilePicture" ? "avatar" : "dropzone";
+        const multiple = variant === "dropzone"; // dropzone supports multiple files
+        return (
+          <FileInput
+            value={formData[control.name] as File | File[] | null}
+            onChange={(file) =>
+              setFormData({ ...formData, [control.name]: file })
+            }
+            variant={variant}
+            multiple={multiple}
+            accept={variant === "avatar" ? "image/*" : "*"}
+            label={control.label}
+          />
+        );
+
       default:
         return <input type={control.type} {...commonProps} />;
     }
