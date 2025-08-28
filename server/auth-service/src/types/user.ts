@@ -27,12 +27,3 @@ export interface User {
   updated_at?: Date;
 }
 
-export enum UserRole {
-  SUPER_ADMIN = "super_admin",
-  ADMIN = "admin",
-  TENANT_ADMIN = "tenant_admin",
-  INSTRUCTOR = "instructor",
-  STUDENT = "student",
-  PARENT = "parent",
-  GUEST = "guest",
-}
