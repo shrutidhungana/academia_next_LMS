@@ -17,8 +17,32 @@ import {
 } from "../services/tokenService";
 import { sendEmailOtp } from "../utils/emailUtil";
 import pool from "../database";
+import { imageUploadUtil } from "../utils/cloudinary";
 
 const OTP_EXPIRY_MINUTES = 20;
+
+export const handleImageUpload = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No file uploaded" });
+    }
+
+    const result = await imageUploadUtil(req.file.buffer);
+
+    return res.json({
+      success: true,
+      url: result,
+      message: "Image uploaded successfully",
+    });
+  } catch (error) {
+    console.error("Image upload error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Image upload failed" });
+  }
+};
 
 export const register = async (req: Request, res: Response) => {
   try {
