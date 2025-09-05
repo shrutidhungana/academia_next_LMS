@@ -21,7 +21,7 @@ app.use(
       "Expires",
       "Pragma",
     ],
-    // credentials: true,
+    credentials: true,
   })
 );
 app.use(express.json());
