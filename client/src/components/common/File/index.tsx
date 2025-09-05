@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -7,6 +6,7 @@ import { PlusIcon } from "@radix-ui/react-icons";
 export type FileInputProps = {
   value: File | File[] | null;
   onChange: (files: File | File[] | null) => void;
+  onUpload?: (file: File) => void; // NEW
   multiple?: boolean;
   accept?: string;
   variant?: "avatar" | "dropzone";
@@ -16,6 +16,7 @@ export type FileInputProps = {
 const FileInput: React.FC<FileInputProps> = ({
   value,
   onChange,
+  onUpload,
   multiple = false,
   accept,
   variant = "dropzone",
@@ -24,7 +25,6 @@ const FileInput: React.FC<FileInputProps> = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string>("");
 
-  // For avatar preview
   useEffect(() => {
     if (variant === "avatar" && value && value instanceof File) {
       const url = URL.createObjectURL(value);
@@ -36,9 +36,13 @@ const FileInput: React.FC<FileInputProps> = ({
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
     if (multiple) {
-      onChange(Array.from(files));
+      const arr = Array.from(files);
+      onChange(arr);
+      if (onUpload) arr.forEach(onUpload);
     } else {
-      onChange(files[0]);
+      const file = files[0];
+      onChange(file);
+      if (onUpload) onUpload(file);
     }
   };
 
@@ -47,9 +51,7 @@ const FileInput: React.FC<FileInputProps> = ({
     handleFiles(e.dataTransfer.files);
   };
 
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
+  const handleClick = () => inputRef.current?.click();
 
   if (variant === "avatar") {
     return (
@@ -83,7 +85,7 @@ const FileInput: React.FC<FileInputProps> = ({
     );
   }
 
-  // Dropzone variant
+  // Dropzone
   return (
     <div
       className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-gray-400 bg-gray-50 text-center text-gray-600 hover:bg-gray-100"

@@ -1,12 +1,11 @@
 "use client";
-
 import React from "react";
 import { Button } from "@radix-ui/themes";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import * as Select from "@radix-ui/react-select";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import clsx from "clsx";
-import FileInput from "../File"; // New reusable file input component
+import FileInput from "../File";
 
 export type FormControl = {
   name: string;
@@ -28,6 +27,7 @@ type FormProps<T extends Record<string, unknown>> = {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   buttonText: string;
   isBtnDisabled?: boolean;
+  onUpload?: (file: File) => void;
 };
 
 const CommonForm = <T extends Record<string, unknown>>({
@@ -37,6 +37,7 @@ const CommonForm = <T extends Record<string, unknown>>({
   onSubmit,
   buttonText,
   isBtnDisabled = false,
+  onUpload,
 }: FormProps<T>) => {
   const renderInput = (control: FormControl) => {
     const commonProps = {
@@ -133,16 +134,17 @@ const CommonForm = <T extends Record<string, unknown>>({
         );
 
       case "file":
-        // Decide variant based on field name
         const variant =
           control.name === "profilePicture" ? "avatar" : "dropzone";
-        const multiple = variant === "dropzone"; // dropzone supports multiple files
+        const multiple = variant === "dropzone";
+
         return (
           <FileInput
             value={formData[control.name] as File | File[] | null}
             onChange={(file) =>
               setFormData({ ...formData, [control.name]: file })
             }
+            onUpload={control.name === "profilePicture" ? onUpload : undefined}
             variant={variant}
             multiple={multiple}
             accept={variant === "avatar" ? "image/*" : "*"}
@@ -161,7 +163,6 @@ const CommonForm = <T extends Record<string, unknown>>({
 
     fields.forEach((field, i) => {
       currentRow.push(field);
-
       const nextField = fields[i + 1];
       const shouldBreak =
         forceOnePerRow ||
@@ -172,7 +173,7 @@ const CommonForm = <T extends Record<string, unknown>>({
         ) ||
         i === fields.length - 1;
 
-      if (shouldBreak || i === fields.length - 1) {
+      if (shouldBreak) {
         rows.push(currentRow);
         currentRow = [];
       }

@@ -10,43 +10,40 @@ import { useToast } from "@/hooks/useToast";
 import useAuth from "@/hooks/authHooks/useAuth";
 import { setUser, setAccessToken } from "@/store/auth-slice";
 
-type FormData = {
-  [key: string]: unknown;
-};
+type FormData = { [key: string]: any };
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ roles: [] });
   const dispatch = useDispatch();
   const { showSuccess, showError } = useToast();
-  const { registerMutation } = useAuth();
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const { registerMutation, uploadImageMutation } = useAuth();
 
-  try {
-    // Call register mutation
-    const response = await registerMutation.mutateAsync(formData);
-
-    // Update Redux store with actual user
-    const user = response.data;
-    dispatch(setUser(user));
-    if (user.accessToken) dispatch(setAccessToken(user.accessToken));
-
-    // Show backend success message
-    showSuccess(response.message);
-
-    // Reset form
-    setFormData({ roles: [] });
-  } catch (error: any) {
-    if (error.response?.data?.message) {
-      showError(error.response.data.message);
-    } else if (error.response?.data?.error) {
-      showError(error.response.data.error);
-    } else {
-      showError(error.message || "Registration failed");
+  const handleUpload = async (file: File) => {
+    try {
+      const response = await uploadImageMutation.mutateAsync(file);
+      setFormData((prev) => ({ ...prev, profilePicture: response.url }));
+      showSuccess("Profile picture uploaded successfully!");
+    } catch (err: any) {
+      showError(err.message || "Failed to upload profile picture");
     }
-  }
-};
+  };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await registerMutation.mutateAsync(formData);
+      const user = response.data;
+      dispatch(setUser(user));
+      if (user.accessToken) dispatch(setAccessToken(user.accessToken));
+      showSuccess(response.message);
+      setFormData({ roles: [] });
+    } catch (error: any) {
+      if (error.response?.data?.message) showError(error.response.data.message);
+      else if (error.response?.data?.error)
+        showError(error.response.data.error);
+      else showError(error.message || "Registration failed");
+    }
+  };
 
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
@@ -61,12 +58,13 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           setFormData={setFormData}
           onSubmit={handleSubmit}
           buttonText="Register"
+          onUpload={handleUpload} // ✅ pass upload handler
         />
 
         <div className="mt-10 text-center text-sm text-muted-foreground">
-          OR CONTINUE WITH
+          {" "}
+          OR CONTINUE WITH{" "}
         </div>
-
         <ContinueWithButtons
           providers={SOCIAL_PROVIDERS.map((provider) => ({
             ...provider,

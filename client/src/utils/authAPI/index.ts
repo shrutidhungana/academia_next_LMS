@@ -11,4 +11,5 @@ export const apiEndpoints = {
   resendOtp: `${API_BASE_AUTH}/auth/resend-otp`,
   verifyAccessToken: `${API_BASE_AUTH}/auth/me`,
   auth: `${API_BASE_AUTH}/auth/check-auth`,
+  upload: `${API_BASE_AUTH}/auth/upload-image`,
 };

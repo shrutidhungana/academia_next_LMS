@@ -25,7 +25,7 @@ router.post("/reset-password", resetPassword);
 router.post("/refresh-token", refreshToken);
 router.post("/logout", logout);
 router.post("/resend-otp", resendOtp);
-router.post("/upload-image", upload.single("image"), handleImageUpload);
+router.post("/upload-image", upload.single("file"), handleImageUpload);
 
 // Protected route
 router.get("/me", verifyAccessToken, getAuthUser);

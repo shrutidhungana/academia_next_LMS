@@ -22,6 +22,7 @@ const {
   resendOtp,
   verifyAccessToken,
   auth,
+  upload,
 } = apiEndpoints;
 
 const useAuth = () => {
@@ -148,6 +149,18 @@ const useAuth = () => {
     },
   });
 
+   const uploadImageMutation = useMutation<{ url: string }, Error, File>({
+     mutationFn: async (file: File) => {
+       const formData = new FormData();
+       formData.append("file", file);
+       const res = await axios.post<{ url: string }>(upload, formData, {
+         headers: { "Content-Type": "multipart/form-data" },
+         withCredentials: true,
+       });
+       return res.data;
+     },
+   });
+
   return {
     // Queries
     authUserQuery,
@@ -162,6 +175,7 @@ const useAuth = () => {
     refreshTokenMutation,
     logoutMutation,
     resendOtpMutation,
+    uploadImageMutation,
   };
 };
 
