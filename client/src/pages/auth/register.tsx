@@ -36,7 +36,15 @@ const Register: React.FC = () => {
       dispatch(setUser(user));
       if (user.accessToken) dispatch(setAccessToken(user.accessToken));
       showSuccess(response.message);
-      setFormData({ roles: [] });
+
+      // ✅ Reset all form fields
+      const resetData = Object.keys(formData).reduce((acc, key) => {
+        if (Array.isArray(formData[key])) acc[key] = [];
+        else acc[key] = "";
+        return acc;
+      }, {} as FormData);
+
+      setFormData(resetData);
     } catch (error: any) {
       if (error.response?.data?.message) showError(error.response.data.message);
       else if (error.response?.data?.error)
@@ -44,6 +52,7 @@ const Register: React.FC = () => {
       else showError(error.message || "Registration failed");
     }
   };
+
 
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
@@ -58,7 +67,7 @@ const Register: React.FC = () => {
           setFormData={setFormData}
           onSubmit={handleSubmit}
           buttonText="Register"
-          onUpload={handleUpload} // ✅ pass upload handler
+          onUpload={handleUpload} 
         />
 
         <div className="mt-10 text-center text-sm text-muted-foreground">
