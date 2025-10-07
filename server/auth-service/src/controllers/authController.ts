@@ -21,6 +21,7 @@ import { imageUploadUtil } from "../utils/cloudinary";
 
 const OTP_EXPIRY_MINUTES = 20;
 
+// -------------------- IMAGE UPLOAD --------------------
 export const handleImageUpload = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
@@ -44,6 +45,7 @@ export const handleImageUpload = async (req: Request, res: Response) => {
   }
 };
 
+// -------------------- REGISTER --------------------
 export const register = async (req: Request, res: Response) => {
   try {
     const {
@@ -54,6 +56,7 @@ export const register = async (req: Request, res: Response) => {
       phone,
       email,
       password,
+      confirmPassword, // ✅ confirm password
       gender,
       maritalStatus,
       dateOfBirth,
@@ -71,11 +74,22 @@ export const register = async (req: Request, res: Response) => {
       howDidYouHear,
     } = req.body;
 
+    // ✅ Confirm password validation
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "Passwords do not match" });
+    }
+
     const existing = await findUserByEmail(email);
-    if (existing)
-      return res.status(409).json({ message: "Email already registered" });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ status: 409, message: "Email already registered" });
+    }
 
     const password_hash = await bcrypt.hash(password, 10);
+
     const user = await createUser({
       first_name: firstName,
       middle_name: middleName,
@@ -101,25 +115,30 @@ export const register = async (req: Request, res: Response) => {
       how_did_you_hear: howDidYouHear,
     });
 
+    // Generate OTP for email verification
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
     await createOtp(user.id, otp, "verify_email", expiresAt);
     await sendEmailOtp(email, otp, "Confirm your email");
 
-    return res
-      .status(201)
-        .json({
-          status: 201,
-        message: "User registered. OTP sent to email.",
-        data: { email },
-      });
+    return res.status(201).json({
+      status: 201,
+      message: "User registered successfully. OTP sent to email.",
+      data: { email },
+    });
   } catch (err: any) {
-  console.error("Registration Error:", err.message, err.stack);
-  return res.status(500).json({status:500, message: "Registration failed", error: err.message });
-}
-
+    console.error("Registration Error:", err.message, err.stack);
+    return res
+      .status(500)
+      .json({
+        status: 500,
+        message: "Registration failed",
+        error: err.message,
+      });
+  }
 };
 
+// -------------------- CONFIRM EMAIL --------------------
 export const confirmEmail = async (req: Request, res: Response) => {
   try {
     const { email, otp } = req.body;
@@ -138,17 +157,20 @@ export const confirmEmail = async (req: Request, res: Response) => {
     await verifyUserEmail(user.id);
     await deleteOtp(user.id, "verify_email");
 
-    return res.json({ status:200, message: "Email verified successfully" });
+    return res.json({ status: 200, message: "Email verified successfully" });
   } catch (err) {
-    return res.status(500).json({ status:500, message: "Verification failed" });
+    return res
+      .status(500)
+      .json({ status: 500, message: "Verification failed" });
   }
 };
 
+// -------------------- LOGIN --------------------
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
     const user = await findUserByEmail(email);
+
     if (!user || !user.is_email_verified) {
       return res
         .status(401)
@@ -156,8 +178,9 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const accessToken = generateAccessToken(user.id, user.roles);
     const refreshToken = generateRefreshToken(user.id);
@@ -174,10 +197,12 @@ export const login = async (req: Request, res: Response) => {
 
     return res.json({ message: "Login successful", accessToken });
   } catch (err) {
+    console.error("Login Error:", err);
     return res.status(500).json({ message: "Login failed" });
   }
 };
 
+// -------------------- LOGOUT --------------------
 export const logout = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.refreshToken;
@@ -196,6 +221,7 @@ export const logout = async (req: Request, res: Response) => {
   }
 };
 
+// -------------------- REFRESH TOKEN --------------------
 export const refreshToken = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.refreshToken;
@@ -210,6 +236,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
+// -------------------- FORGOT PASSWORD --------------------
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -227,6 +254,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
+// -------------------- RESET PASSWORD --------------------
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -256,11 +284,13 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+// -------------------- GET AUTH USER --------------------
 export const getAuthUser = async (req: Request, res: Response) => {
   const user = (req as any).user;
   return res.json({ message: "Authenticated", data: user });
 };
 
+// -------------------- RESEND OTP --------------------
 export const resendOtp = async (req: Request, res: Response) => {
   try {
     const { email, purpose = "verify_email" } = req.body;
@@ -270,13 +300,8 @@ export const resendOtp = async (req: Request, res: Response) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
 
-    // delete old OTP
     await deleteOtp(user.id, purpose);
-
-    // save new OTP
     await createOtp(user.id, otp, purpose, expiresAt);
-
-    // send email
     await sendEmailOtp(email, otp, "Your new OTP code");
 
     return res.json({ status: 200, message: "New OTP sent to email" });
