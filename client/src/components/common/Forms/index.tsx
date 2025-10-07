@@ -119,6 +119,7 @@ const CommonForm = <T extends Record<string, unknown>>({
         return (
           <label className="flex items-center gap-2">
             <Checkbox.Root
+              id={control.name}
               checked={Boolean(formData[control.name])}
               onCheckedChange={(checked) =>
                 setFormData({ ...formData, [control.name]: !!checked })
@@ -129,9 +130,13 @@ const CommonForm = <T extends Record<string, unknown>>({
                 <CheckIcon className="text-indigo-600" />
               </Checkbox.Indicator>
             </Checkbox.Root>
-            <span className="text-sm text-gray-800">{control.label}</span>
+            <span className="text-sm text-gray-800 flex items-center gap-1">
+              {control.label}
+              {control.required && <span className="text-red-600">*</span>}
+            </span>
           </label>
         );
+        
 
       case "file":
         const variant =

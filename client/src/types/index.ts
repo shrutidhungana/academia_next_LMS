@@ -21,7 +21,7 @@ export type FieldType =
 
 export type FormField = {
   name: string;
-  label: string;
+  label: string | React.ReactNode;
   type: FieldType;
   required: boolean;
   options?: { id: string; label: string }[];
