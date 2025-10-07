@@ -30,6 +30,20 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    for (const section of REGISTER_FORM_FIELDS) {
+      for (const field of section.fields) {
+        if (
+          field.type === "checkbox" &&
+          field.required &&
+          !formData[field.name]
+        ) {
+          showError(`Please accept the Terms & Conditions`);
+          return; // Stop submission
+        }
+      }
+    }
+
     try {
       const response = await registerMutation.mutateAsync(formData);
       const user = response.data;
@@ -53,7 +67,6 @@ const Register: React.FC = () => {
     }
   };
 
-
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
   };
@@ -67,7 +80,7 @@ const Register: React.FC = () => {
           setFormData={setFormData}
           onSubmit={handleSubmit}
           buttonText="Register"
-          onUpload={handleUpload} 
+          onUpload={handleUpload}
         />
 
         <div className="mt-10 text-center text-sm text-muted-foreground">

@@ -1,4 +1,5 @@
 import { FormSection, FormField } from "@/types";
+import DialogBox from "@/components/common/Dialog";
 
 const toOptions = (options: string[]) =>
   options.map((val) => ({ id: val, label: val }));
@@ -149,7 +150,128 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
       },
       {
         name: "terms",
-        label: "I agree to Terms & Conditions ",
+        label: (
+          <>
+            I agree to{" "}
+            <DialogBox
+              title="Terms & Conditions"
+              description="Please review our Terms and Conditions carefully before continuing."
+              trigger={
+                <span className="text-blue-600 underline hover:text-orange-500 cursor-pointer">
+                  Terms & Conditions
+                </span>
+              }
+            >
+              <p>
+                Welcome to <strong>Academia Next</strong>. By registering or
+                using our platform, you agree to comply with these Terms and
+                Conditions. These govern your access, use, and participation in
+                the services provided.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">
+                1. User Responsibilities
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Provide accurate and complete registration information.</li>
+                <li>Keep your account credentials confidential.</li>
+                <li>Report any unauthorized use of your account.</li>
+              </ul>
+
+              <h3 className="font-semibold text-base mt-3">
+                2. Acceptable Use
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>
+                  Use the platform only for legitimate educational or
+                  organizational purposes.
+                </li>
+                <li>
+                  Do not post, upload, or share harmful, offensive, or illegal
+                  content.
+                </li>
+                <li>Respect all other users and instructors.</li>
+              </ul>
+
+              <h3 className="font-semibold text-base mt-3">
+                3. Intellectual Property
+              </h3>
+              <p>
+                All content, including text, images, videos, and code, is owned
+                by Academia Next or its licensors. You may not reproduce,
+                distribute, or modify any content without explicit permission.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">
+                4. Privacy and Data
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>
+                  Your personal data is collected only for service improvement
+                  and academic purposes.
+                </li>
+                <li>
+                  We do not sell or share personal information with third
+                  parties without consent.
+                </li>
+                <li>
+                  By using the platform, you consent to our Privacy Policy.
+                </li>
+              </ul>
+
+              <h3 className="font-semibold text-base mt-3">
+                5. Payments and Subscriptions
+              </h3>
+              <p>
+                Any paid features, courses, or subscriptions are subject to the
+                applicable pricing, billing, and refund policies published on
+                our platform. All payments are final unless otherwise stated.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">
+                6. Limitation of Liability
+              </h3>
+              <p>
+                Academia Next is not liable for indirect, incidental, or
+                consequential damages arising from your use of the platform,
+                including loss of data, profits, or access.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">7. Termination</h3>
+              <p>
+                We reserve the right to suspend or terminate accounts for
+                violations of these Terms, repeated misuse, or illegal activity,
+                without prior notice.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">
+                8. Updates to Terms
+              </h3>
+              <p>
+                We may modify these Terms at any time. Users will be notified of
+                significant updates, and continued use of the platform indicates
+                acceptance of the updated terms.
+              </p>
+
+              <h3 className="font-semibold text-base mt-3">9. Governing Law</h3>
+              <p>
+                These Terms are governed by the laws of the country in which
+                Academia Next operates, without regard to conflict of law
+                principles.
+              </p>
+
+              <p className="mt-4 text-sm italic text-neutral-500">
+                Last Updated:{" "}
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </DialogBox>
+          </>
+        ),
         type: "checkbox",
         required: true,
       },
