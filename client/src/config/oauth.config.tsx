@@ -1,4 +1,4 @@
-import { GoogleIcon, FacebookIcon, LinkedInIcon, GitHubIcon, AppleIcon, MicrosoftIcon } from "@/icons";
+import { GoogleIcon, FacebookIcon, LinkedInIcon, GitHubIcon} from "@/icons";
 import { SocialProvider } from "@/types";
 export const SOCIAL_PROVIDERS: SocialProvider[] = [
   {
@@ -21,14 +21,5 @@ export const SOCIAL_PROVIDERS: SocialProvider[] = [
     label: "Continue with LinkedIn",
     LogoComponent: LinkedInIcon,
   },
-  {
-    id: "apple",
-    label: "Continue with Apple",
-    LogoComponent: AppleIcon,
-  },
-  {
-    id: "microsoft",
-    label: "Continue with Microsoft",
-    LogoComponent: MicrosoftIcon,
-  },
+ 
 ];

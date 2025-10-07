@@ -1,7 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@radix-ui/themes";
-import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  EyeClosedIcon,
+} from "@radix-ui/react-icons";
+import { RxEyeOpen } from "react-icons/rx";
+import { GoEyeClosed } from "react-icons/go";
 import * as Select from "@radix-ui/react-select";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import clsx from "clsx";
@@ -39,7 +45,19 @@ const CommonForm = <T extends Record<string, unknown>>({
   isBtnDisabled = false,
   onUpload,
 }: FormProps<T>) => {
+  // Track which password fields are visible
+  const [showPasswordFields, setShowPasswordFields] = useState<
+    Record<string, boolean>
+  >({});
+
   const renderInput = (control: FormControl) => {
+    const togglePassword = () => {
+      setShowPasswordFields((prev) => ({
+        ...prev,
+        [control.name]: !prev[control.name],
+      }));
+    };
+
     const commonProps = {
       id: control.name,
       name: control.name,
@@ -53,6 +71,28 @@ const CommonForm = <T extends Record<string, unknown>>({
     };
 
     switch (control.type) {
+      case "password":
+        return (
+          <div className="relative">
+            <input
+              type={showPasswordFields[control.name] ? "text" : "password"}
+              {...commonProps}
+              className="w-full rounded-lg border border-gray-300 p-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2"
+              onClick={togglePassword}
+            >
+              {showPasswordFields[control.name] ? (
+                <RxEyeOpen className="text-gray-600" />
+              ) : (
+                <GoEyeClosed className="text-gray-600" />
+              )}
+            </button>
+          </div>
+        );
+
       case "textarea":
         return <textarea rows={4} {...commonProps} />;
 
@@ -136,7 +176,6 @@ const CommonForm = <T extends Record<string, unknown>>({
             </span>
           </label>
         );
-        
 
       case "file":
         const variant =
