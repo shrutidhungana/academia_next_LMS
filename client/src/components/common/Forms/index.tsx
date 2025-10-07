@@ -4,7 +4,6 @@ import { Button } from "@radix-ui/themes";
 import {
   CheckIcon,
   ChevronDownIcon,
-  EyeClosedIcon,
 } from "@radix-ui/react-icons";
 import { RxEyeOpen } from "react-icons/rx";
 import { GoEyeClosed } from "react-icons/go";
