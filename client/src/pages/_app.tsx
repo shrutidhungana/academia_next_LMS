@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>Academia-Next</title>
         <meta name="description" content="Learning Management System" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon-v2.ico" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Provider store={store}>
@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Navbar
             navItems={NAV_ITEMS}
             logoTitle="ACADEMIA NEXT"
-            logo="/favicon-v2.ico"
+            logo="/favicon.ico"
           />
           <main className="pt-16">
             {/* Padding top to offset fixed navbar */}
