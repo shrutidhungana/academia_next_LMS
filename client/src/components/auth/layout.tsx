@@ -16,12 +16,12 @@ const AuthLayout: React.FC<LayoutProps> = ({
   subtitle = "Create your account now",
 }) => {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tr from-indigo-800 via-purple-800 to-pink-700 px-4 py-8">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-tr from-[#F8FAFC] via-[#EBF2F7] to-[#E2E8F0] px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="max-w-4xl w-full bg-white rounded-xl shadow-lg p-8 space-y-6 hover:shadow-2xl transition-shadow duration-300"
+        className="max-w-3xl w-full bg-[#E0F2FF] rounded-xl shadow-lg p-8 space-y-6 hover:shadow-2xl transition-shadow duration-300"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

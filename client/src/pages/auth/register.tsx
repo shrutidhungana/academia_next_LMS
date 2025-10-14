@@ -9,14 +9,49 @@ import { useDispatch } from "react-redux";
 import { useToast } from "@/hooks/useToast";
 import useAuth from "@/hooks/authHooks/useAuth";
 import { setUser, setAccessToken } from "@/store/auth-slice";
+import { RegisterPayload } from "@/types";
+import { useRouter } from "next/navigation";
+
 
 type FormData = { [key: string]: any };
 
 const Register: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({ roles: [] });
+
+const defaultFormData: RegisterPayload = {
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  username: "",
+  phone: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  gender: "",
+  maritalStatus: "",
+  dateOfBirth: "",
+  profilePicture: null,
+  country: "",
+  state: "",
+  city: "",
+  zip: "",
+  address1: "",
+  address2: "",
+  roles: [],
+  organization: "",
+  department: "",
+  jobTitle: "",
+  howDidYouHear: "",
+  terms: false,
+  captcha: "",
+};
+
+
+ const [formData, setFormData] = useState<RegisterPayload>(defaultFormData);
   const dispatch = useDispatch();
   const { showSuccess, showError } = useToast();
   const { registerMutation, uploadImageMutation } = useAuth();
+
+  const router = useRouter()
 
   const handleUpload = async (file: File) => {
     try {
@@ -36,10 +71,10 @@ const Register: React.FC = () => {
         if (
           field.type === "checkbox" &&
           field.required &&
-          !formData[field.name]
+          !(formData[field.name as keyof RegisterPayload] as boolean)
         ) {
           showError(`Please accept the Terms & Conditions`);
-          return; // Stop submission
+          return;
         }
       }
     }
@@ -52,13 +87,28 @@ const Register: React.FC = () => {
       showSuccess(response.message);
 
       // ✅ Reset all form fields
-      const resetData = Object.keys(formData).reduce((acc, key) => {
-        if (Array.isArray(formData[key])) acc[key] = [];
-        else acc[key] = "";
-        return acc;
-      }, {} as FormData);
+    const resetData = (
+      Object.keys(formData) as (keyof RegisterPayload)[]
+    ).reduce((acc, key) => {
+      const value = formData[key];
+
+      if (Array.isArray(value)) {
+        acc[key] = [] as any; // roles or other arrays
+      } else if (typeof value === "boolean") {
+        acc[key] = false as any; // terms
+      } else if (value instanceof File || value === null) {
+        acc[key] = null as any; // profilePicture
+      } else {
+        acc[key] = "" as any; // strings
+      }
+
+      return acc;
+    }, {} as RegisterPayload);
 
       setFormData(resetData);
+      router.push(
+        `/auth/confirm-email?email=${encodeURIComponent(formData.email)}`
+      );
     } catch (error: any) {
       if (error.response?.data?.message) showError(error.response.data.message);
       else if (error.response?.data?.error)

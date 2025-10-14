@@ -9,7 +9,7 @@ export interface User {
   password_hash: string;
   gender?: string;
   marital_status?: string;
-  date_of_birth?: Date;
+  date_of_birth?: Date | null;
   profile_picture?: string;
   country: string;
   state?: string;

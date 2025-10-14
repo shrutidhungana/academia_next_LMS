@@ -29,15 +29,13 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
 
   const result = await pool.query(
     `INSERT INTO users (
-      first_name, middle_name, last_name, username, phone, email, password_hash,
-      gender, marital_status, date_of_birth, profile_picture, country, state,
-      city, zip, address1, address2, roles, organization, department, job_title,
-      how_did_you_hear
-    ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7,
-      $8, $9, $10, $11, $12, $13,
-      $14, $15, $16, $17, $18::text[], $19, $20, $21, $22
-    ) RETURNING *`,
+        first_name, middle_name, last_name, username, phone, email,
+        password_hash, gender, marital_status, date_of_birth,
+        profile_picture, country, state, city, zip,
+        address1, address2, roles, organization, department, job_title, how_did_you_hear
+      ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::text[],$19,$20,$21,$22
+      ) RETURNING *`,
     [
       first_name,
       middle_name,
@@ -48,7 +46,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
       password_hash,
       gender,
       marital_status,
-      date_of_birth,
+      date_of_birth, // <-- now safe if null
       profile_picture,
       country,
       state,
@@ -56,7 +54,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
       zip,
       address1,
       address2,
-      roles, // JS array cast to text[]
+      roles,
       organization,
       department,
       job_title,
@@ -66,6 +64,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
 
   return result.rows[0];
 };
+
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
   const result = await pool.query("SELECT * FROM users WHERE email = $1", [
