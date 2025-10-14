@@ -14,7 +14,7 @@ import FileInput from "../File";
 
 export type FormControl = {
   name: string;
-  label: string;
+  label: string | React.ReactNode;
   type: string;
   required?: boolean;
   options?: { id: string; label: string }[];
@@ -105,7 +105,9 @@ const CommonForm = <T extends Record<string, unknown>>({
           >
             <Select.Trigger
               className="inline-flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              aria-label={control.label}
+              aria-label={
+                typeof control.label === "string" ? control.label : ""
+              }
             >
               <Select.Value placeholder={control.label} />
               <Select.Icon className="ml-2">
@@ -191,7 +193,7 @@ const CommonForm = <T extends Record<string, unknown>>({
             variant={variant}
             multiple={multiple}
             accept={variant === "avatar" ? "image/*" : "*"}
-            label={control.label}
+            label={typeof control.label === "string" ? control.label : ""}
           />
         );
 

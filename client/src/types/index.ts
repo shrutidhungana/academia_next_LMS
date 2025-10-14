@@ -21,7 +21,7 @@ export type FieldType =
 
 export type FormField = {
   name: string;
-  label: string | React.ReactNode;
+  label: string | React.ReactNode; // ✅ Allow JSX labels
   type: FieldType;
   required: boolean;
   options?: { id: string; label: string }[];
@@ -30,7 +30,7 @@ export type FormField = {
 export type FormSection = {
   section: string;
   fields: FormField[];
-  fieldGroups?: string[][]; // NEW: layout per row
+  fieldGroups?: string[][]; // layout per row
 };
 
 export type SocialProvider = {
@@ -51,7 +51,7 @@ export type RegisterPayload = {
   gender?: string;
   maritalStatus?: string;
   dateOfBirth?: string;
-  profilePicture?: File | null;
+  profilePicture?: File | string | null;
   country: string;
   state?: string;
   city?: string;
@@ -72,31 +72,43 @@ export type ConfirmEmailPayload = {
   otp: string;
 };
 
-export type LoginPayload=  {
+export type LoginPayload = {
   email: string;
   password: string;
-}
+};
 
-export type ForgotPasswordPayload ={
+export type ForgotPasswordPayload = {
   email: string;
-}
+};
 
-export type ResetPasswordPayload ={
+export type ResetPasswordPayload = {
   email: string;
   otp: string;
   newPassword: string;
-}
+};
 
-export type ResendOtpPayload= {
+export type ResendOtpPayload = {
   email: string;
   purpose?: string;
-}
+};
 
 export type UserResponse = {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
+  id?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  roles?: string[];
   accessToken?: string;
+  message?: string; // ✅ Added
+  success?: boolean;
+  data?: {
+    id?: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    roles?: string[];
+    accessToken?: string;
+    message?: string;
+  }; // ✅ Added
 };
+

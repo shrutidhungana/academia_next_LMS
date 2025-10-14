@@ -19,7 +19,7 @@ import { sendEmailOtp } from "../utils/emailUtil";
 import pool from "../database";
 import { imageUploadUtil } from "../utils/cloudinary";
 
-const OTP_EXPIRY_MINUTES = 20;
+const OTP_EXPIRY_MINUTES = 2;
 
 // -------------------- IMAGE UPLOAD --------------------
 export const handleImageUpload = async (req: Request, res: Response) => {
@@ -44,7 +44,6 @@ export const handleImageUpload = async (req: Request, res: Response) => {
       .json({ success: false, message: "Image upload failed" });
   }
 };
-
 // -------------------- REGISTER --------------------
 export const register = async (req: Request, res: Response) => {
   try {
@@ -56,7 +55,7 @@ export const register = async (req: Request, res: Response) => {
       phone,
       email,
       password,
-      confirmPassword, // ✅ confirm password
+      confirmPassword,
       gender,
       maritalStatus,
       dateOfBirth,
@@ -76,43 +75,40 @@ export const register = async (req: Request, res: Response) => {
 
     // ✅ Confirm password validation
     if (password !== confirmPassword) {
-      return res
-        .status(400)
-        .json({ status: 400, message: "Passwords do not match" });
+      return res.status(400).json({ status: 400, message: "Passwords do not match" });
     }
 
     const existing = await findUserByEmail(email);
     if (existing) {
-      return res
-        .status(409)
-        .json({ status: 409, message: "Email already registered" });
+      return res.status(409).json({ status: 409, message: "Email already registered" });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
 
+    // Normalize optional fields: empty strings -> null
     const user = await createUser({
       first_name: firstName,
-      middle_name: middleName,
+      middle_name: middleName || null,
       last_name: lastName,
       username,
-      phone,
+      phone: phone || null,
       email,
       password_hash,
-      gender,
-      marital_status: maritalStatus,
-      date_of_birth: dateOfBirth,
-      profile_picture: profilePicture,
+      gender: gender || null,
+      marital_status: maritalStatus || null,
+      date_of_birth: dateOfBirth ? new Date(dateOfBirth) : null, 
+      profile_picture: profilePicture || null,
       country,
-      state,
-      city,
-      zip,
-      address1,
-      address2,
-      roles,
-      organization,
-      department,
-      job_title: jobTitle,
-      how_did_you_hear: howDidYouHear,
+      state: state || null,
+      city: city || null,
+      zip: zip || null,
+      address1: address1 || null,
+      address2: address2 || null,
+      roles: roles || ["user"], // default role
+      organization: organization || null,
+      department: department || null,
+      job_title: jobTitle || null,
+      how_did_you_hear: howDidYouHear || null,
     });
 
     // Generate OTP for email verification
@@ -128,15 +124,14 @@ export const register = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error("Registration Error:", err.message, err.stack);
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Registration failed",
-        error: err.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Registration failed",
+      error: err.message,
+    });
   }
 };
+
 
 // -------------------- CONFIRM EMAIL --------------------
 export const confirmEmail = async (req: Request, res: Response) => {
