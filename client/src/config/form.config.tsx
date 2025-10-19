@@ -275,7 +275,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         type: "checkbox",
         required: true,
       },
-      { name: "captcha", label: "Captcha", type: "text", required: true },
+      { name: "captcha", label: "Captcha", type: "captcha", required: true },
     ],
     fieldGroups: [
       ["roles"],
