@@ -17,7 +17,8 @@ export type FieldType =
   | "date"
   | "file"
   | "checkbox"
-  | "textarea";
+  | "textarea"
+  | "captcha";
 
 export type FormField = {
   name: string;
@@ -111,4 +112,3 @@ export type UserResponse = {
     message?: string;
   }; // ✅ Added
 };
-

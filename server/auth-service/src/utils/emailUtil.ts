@@ -65,7 +65,7 @@ export const sendEmailOtp = async (
                       Requested on <strong>${formattedDate}</strong>
                     </p>
                     <p style="color: #94a3b8; font-size: 13px; margin: 0;">
-                      If this wasn’t you, you can safely ignore this email.
+                    If you did not request this, please disregard this email. Your account remains secure.
                     </p>
                   </td>
                 </tr>

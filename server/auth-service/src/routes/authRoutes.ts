@@ -13,11 +13,12 @@ import {
 } from "../controllers/authController";
 import { verifyAccessToken } from "../services/tokenService";
 import { upload } from "../utils/cloudinary";
+import { verifyCaptcha } from "../middleware/captchaMiddleware";
 
 const router: Router = express.Router();
 
 // Public routes
-router.post("/register", register);
+router.post("/register", verifyCaptcha, register);
 router.post("/confirm-email", confirmEmail);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);

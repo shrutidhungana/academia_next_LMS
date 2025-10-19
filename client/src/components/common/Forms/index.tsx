@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@radix-ui/themes";
 import {
   CheckIcon,
@@ -11,6 +11,7 @@ import * as Select from "@radix-ui/react-select";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import clsx from "clsx";
 import FileInput from "../File";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export type FormControl = {
   name: string;
@@ -47,7 +48,8 @@ const CommonForm = <T extends Record<string, unknown>>({
   // Track which password fields are visible
   const [showPasswordFields, setShowPasswordFields] = useState<
     Record<string, boolean>
-  >({});
+    >({});
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const renderInput = (control: FormControl) => {
     const togglePassword = () => {
@@ -194,6 +196,19 @@ const CommonForm = <T extends Record<string, unknown>>({
             multiple={multiple}
             accept={variant === "avatar" ? "image/*" : "*"}
             label={typeof control.label === "string" ? control.label : ""}
+          />
+        );
+
+      case "captcha":
+        return (
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+            onChange={(token: string | null) => {
+              if (token) {
+                setFormData({ ...formData, captcha: token });
+              }
+            }}
           />
         );
 
