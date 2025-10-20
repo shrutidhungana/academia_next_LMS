@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { NavItem } from "@/types";
-import { HiMenu, HiX } from "react-icons/hi";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { HiMenu, HiX } from "react-icons/hi";
+import { NavItem } from "@/types";
+import { NAV_ITEMS } from "@/config/navbar.config";
 
 type NavbarProps = {
-  navItems: NavItem[];
+  role?: "guest" | "superAdmin"; // add other roles later
   logoTitle?: string;
   logo: string;
 };
@@ -23,11 +24,14 @@ const navItemVariants = {
 };
 
 const Navbar: React.FC<NavbarProps> = ({
-  navItems,
+  role = "guest",
   logoTitle = "academia-next",
   logo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Pick nav items based on role
+  const navItems: NavItem[] = NAV_ITEMS[role] || NAV_ITEMS.guest;
 
   return (
     <nav className="fixed w-full z-50 bg-gradient-to-r from-pink-700 via-purple-700 to-indigo-800 shadow-lg">
@@ -102,11 +106,10 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Slide Drawer Menu (NO GLASSMORPHISM) */}
+      {/* Slide Drawer Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Solid dark overlay (no transparency) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.8 }}
@@ -116,7 +119,6 @@ const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setMobileMenuOpen(false)}
             />
 
-            {/* Slide-in drawer */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}

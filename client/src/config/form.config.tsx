@@ -121,7 +121,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Instructor",
           "Student",
           "Parent",
-          "Guest",
+         
         ]),
       },
       {

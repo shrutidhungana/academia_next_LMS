@@ -5,19 +5,45 @@ import ContinueWithButtons from "@/components/auth/oauth";
 import { LOGIN_FORM_FIELDS} from "@/config/form.config";
 import { SOCIAL_PROVIDERS } from "@/config/oauth.config";
 import Link from "next/link";
+import useAuth from "@/hooks/authHooks/useAuth";
+import { useToast } from "@/hooks/useToast";
+import { useDispatch } from "react-redux";
+import { setUser, setAccessToken } from "@/store/auth-slice";
+import { useRouter } from "next/router";
 
 type FormData = {
   [key: string]: unknown;
 };
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({ roles: [] });
+   const [formData, setFormData] = useState<FormData>({
+     email: "",
+     password: "",
+   });
+   const { loginMutation } = useAuth();
+   const { showError, showSuccess } = useToast();
+   const dispatch = useDispatch();
+   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // TODO: Add validation & API call
-  };
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+     e.preventDefault();
+     try {
+       const res = await loginMutation.mutateAsync({
+         email: formData.email as string,
+         password: formData.password as string,
+       });
+
+       if (res?.accessToken) {
+         dispatch(setUser(res));
+         dispatch(setAccessToken(res.accessToken));
+
+         showSuccess("Login successful!");
+         // Redirect handled by CheckAuthComponent on next render
+       }
+     } catch (err: any) {
+       showError(err.response?.data?.message || "Login failed");
+     }
+   };
 
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
