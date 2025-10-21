@@ -1,30 +1,8 @@
 // store/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "@/types";
 
 // User info (from register/login/me)
-interface User {
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  username?: string;
-  phone?: string;
-  email?: string;
-  gender?: string;
-  maritalStatus?: string;
-  dateOfBirth?: string;
-  profilePicture?: string | null;
-  country?: string;
-  state?: string;
-  city?: string;
-  zip?: string;
-  address1?: string;
-  address2?: string;
-  roles?: string[];
-  organization?: string;
-  department?: string;
-  jobTitle?: string;
-  howDidYouHear?: string;
-}
 
 // Auth slice state
 interface AuthState {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,9 +37,14 @@ const Navbar: React.FC<NavbarProps> = ({
   );
 
   // Normalize role for NAV_ITEMS
-  const roleKey = userRole ? NAV_ROLE_MAP[userRole] || "guest" : "guest";
+ 
   
-  const navItems: NavItem[] = NAV_ITEMS[roleKey];
+  const navItems: NavItem[] = useMemo(() => {
+    const roleKey = userRole ? NAV_ROLE_MAP[userRole] || "guest" : "guest";
+    return NAV_ITEMS[roleKey];
+  }, [userRole]);
+
+  console.log({navItems, userRole})
 
 
 

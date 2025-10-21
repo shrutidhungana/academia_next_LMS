@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { setUser, setAccessToken } from "@/store/auth-slice";
 import { useRouter } from "next/router";
 import { ROLE_REDIRECT_MAP } from "@/config/role.config";
+import { mapUserResponseToUserData } from "@/utils/authUser/mapUserResponse";
 
 type FormData = {
   [key: string]: unknown;
@@ -37,20 +38,22 @@ const Login: React.FC = () => {
       });
 
       if (res?.accessToken) {
+        // Map API response to UserData
+        const mappedUserData = mapUserResponseToUserData(res);
+
         // Store in Redux
-        dispatch(setUser(res));
+        dispatch(setUser({ data: mappedUserData }));
         dispatch(setAccessToken(res.accessToken));
 
         // Store in localStorage
         localStorage.setItem("accessToken", res.accessToken);
+        localStorage.setItem("user", JSON.stringify(mappedUserData));
 
         showSuccess("Login successful!");
 
         // --- Redirect based on role ---
-        const role = res?.data?.roles?.[0];
+        const role = mappedUserData.roles?.[0];
         const redirectPath = role ? ROLE_REDIRECT_MAP[role] : undefined;
-
-       
 
         if (redirectPath) {
           router.push(redirectPath);

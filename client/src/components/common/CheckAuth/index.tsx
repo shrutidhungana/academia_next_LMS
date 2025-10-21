@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import useAuth from "@/hooks/authHooks/useAuth";
 import { setUser, setAccessToken, clearAuth } from "@/store/auth-slice";
 import { useToast } from "@/hooks/useToast";
+import { UserData } from "@/types";
 
 const CheckAuthComponent: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -14,6 +15,16 @@ const CheckAuthComponent: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   const { authUserQuery, checkAuthQuery, refreshTokenMutation } = useAuth();
+
+  // Hydrate Redux from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("accessToken");
+
+    if (storedUser)
+      dispatch(setUser({ data: JSON.parse(storedUser) as UserData }));
+    if (storedToken) dispatch(setAccessToken(storedToken));
+  }, [dispatch]);
 
   useEffect(() => {
     const verifyUser = async () => {
@@ -45,17 +56,51 @@ const CheckAuthComponent: React.FC<{ children: React.ReactNode }> = ({
         }
 
         const authCheck = authCheckResult.data?.authenticated;
-        const user = authUserResult.data;
+        const userResponse = authUserResult.data;
 
-        if (authCheck && user) {
-          dispatch(setUser(user));
+        if (authCheck && userResponse?.data) {
+          // Map UserResponse.data to UserData with defaults
+          const mappedUserData: UserData = Object.assign(
+            {
+              id: "",
+              firstName: "",
+              middleName: "",
+              lastName: "",
+              username: "",
+              phone: "",
+              email: "",
+              gender: "",
+              maritalStatus: "",
+              dateOfBirth: "",
+              profilePicture: null,
+              country: "",
+              state: "",
+              city: "",
+              zip: "",
+              address1: "",
+              address2: "",
+              roles: [],
+              organization: "",
+              department: "",
+              jobTitle: "",
+              howDidYouHear: "",
+              accessToken: "",
+              message: "",
+            },
+            userResponse.data
+          );
+
+          dispatch(setUser({ data: mappedUserData }));
           dispatch(setAccessToken(token));
+          localStorage.setItem("user", JSON.stringify(mappedUserData));
+          localStorage.setItem("accessToken", token);
         } else {
-          dispatch(clearAuth());
+          // Clear Redux if no user exists
+          if (!localStorage.getItem("user")) dispatch(clearAuth());
         }
       } catch (err: any) {
         dispatch(clearAuth());
-        showError(err?.message??"Session expired. Please login again.");
+        showError(err?.message ?? "Session expired. Please login again.");
       } finally {
         setLoading(false);
       }

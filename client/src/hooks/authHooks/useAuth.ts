@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import { apiEndpoints } from "@/utils/authAPI";
+import { apiEndpoints } from "@/utils/authUser";
 import {
   RegisterPayload,
   LoginPayload,

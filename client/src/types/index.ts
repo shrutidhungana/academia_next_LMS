@@ -93,6 +93,38 @@ export type ResendOtpPayload = {
   purpose?: string;
 };
 
+export type UserData = {
+  id?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  username?: string;
+  phone?: string;
+  email?: string;
+  gender?: string;
+  maritalStatus?: string;
+  dateOfBirth?: string;
+  profilePicture?: string | null;
+  country?: string;
+  state?: string;
+  city?: string;
+  zip?: string;
+  address1?: string;
+  address2?: string;
+  roles?: string[];
+  organization?: string;
+  department?: string;
+  jobTitle?: string;
+  howDidYouHear?: string;
+  accessToken?: string;
+  message?: string;
+};
+
+
+export type User = {
+  data?: UserData;
+};
+
 export type UserResponse = {
   id?: string;
   email?: string;
@@ -100,15 +132,7 @@ export type UserResponse = {
   lastName?: string;
   roles?: string[];
   accessToken?: string;
-  message?: string; // ✅ Added
+  message?: string; 
   success?: boolean;
-  data?: {
-    id?: string;
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    roles?: string[];
-    accessToken?: string;
-    message?: string;
-  }; // ✅ Added
+  data?: User
 };
