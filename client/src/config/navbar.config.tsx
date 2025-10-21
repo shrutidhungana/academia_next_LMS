@@ -62,41 +62,12 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
       href: "/super-admin/dashboard",
       icon: FaTachometerAlt,
     },
-    {
-      label: "Tenants",
-      href: "/super-admin/tenants",
-      icon: FaUsers,
-    },
-    {
-      label: "Users",
-      href: "/super-admin/users",
-      icon: FaUsers,
-    },
-    {
-      label: "Courses",
-      href: "/super-admin/courses",
-      icon: FaBook,
-    },
-    {
-      label: "Reports",
-      href: "/super-admin/reports",
-      icon: FaFileAlt,
-    },
-    {
-      label: "Settings",
-      href: "/super-admin/settings",
-      icon: FaCog,
-    },
-    {
-      label: "Logs",
-      href: "/super-admin/logs",
-      icon: FaClipboardList,
-    },
-    {
-      label: "Logout",
-      href: "/auth/logout",
-      icon: FaSignOutAlt,
-      cta: true,
-    },
+    { label: "Tenants", href: "/super-admin/tenants", icon: FaUsers },
+    { label: "Users", href: "/super-admin/users", icon: FaUsers },
+    { label: "Courses", href: "/super-admin/courses", icon: FaBook },
+    { label: "Reports", href: "/super-admin/reports", icon: FaFileAlt },
+    { label: "Settings", href: "/super-admin/settings", icon: FaCog },
+    { label: "Logs", href: "/super-admin/logs", icon: FaClipboardList },
+    { label: "Logout", icon: FaSignOutAlt, cta: true, action: "logout" },// ✅ action instead of href
   ],
 };

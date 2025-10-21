@@ -192,11 +192,24 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // -------------------- LOGOUT --------------------
+
 export const logout = async (req: Request, res: Response) => {
   try {
-    const token = req.cookies.refreshToken;
-    if (token) await deleteRefreshToken(token);
+    const token = req.cookies?.refreshToken;
+    
 
+    if (token) {
+      try {
+        await deleteRefreshToken(token);
+      } catch (dbErr) {
+        console.error("Failed to delete refresh token from DB:", dbErr);
+        // don't throw, we still want to clear cookie
+      }
+    } else {
+      console.warn("No refresh token cookie found during logout");
+    }
+
+    // Clear the cookie regardless of DB outcome
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -205,10 +218,12 @@ export const logout = async (req: Request, res: Response) => {
 
     return res.json({ message: "Logout successful" });
   } catch (err) {
-    console.error("Logout Error:", err);
-    return res.status(500).json({ message: "Logout failed" });
+    console.error("Unexpected logout error:", err);
+    // Always return success to avoid frontend breaking
+    return res.json({ message: "Logout successful" });
   }
 };
+
 
 // -------------------- REFRESH TOKEN --------------------
 export const refreshToken = async (req: Request, res: Response) => {

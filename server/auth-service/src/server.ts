@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import "./database";
 import authRoutes from "./routes/authRoutes";
-
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -26,7 +26,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Auth Service Running");
