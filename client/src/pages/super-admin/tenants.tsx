@@ -2,7 +2,7 @@ import React from 'react'
 
 const Tenants = () => {
   return (
-    <div>T</div>
+    <div>Tenants</div>
   )
 }
 

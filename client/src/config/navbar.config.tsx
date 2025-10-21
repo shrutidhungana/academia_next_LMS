@@ -59,37 +59,37 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
   superAdmin: [
     {
       label: "Dashboard",
-      href: "super-admin/dashboard",
+      href: "/super-admin/dashboard",
       icon: FaTachometerAlt,
     },
     {
       label: "Tenants",
-      href: "super-admin/tenants",
+      href: "/super-admin/tenants",
       icon: FaUsers,
     },
     {
       label: "Users",
-      href: "super-admin/users",
+      href: "/super-admin/users",
       icon: FaUsers,
     },
     {
       label: "Courses",
-      href: "super-admin/courses",
+      href: "/super-admin/courses",
       icon: FaBook,
     },
     {
       label: "Reports",
-      href: "super-admin/reports",
+      href: "/super-admin/reports",
       icon: FaFileAlt,
     },
     {
       label: "Settings",
-      href: "super-admin/settings",
+      href: "/super-admin/settings",
       icon: FaCog,
     },
     {
       label: "Logs",
-      href: "super-admin/logs",
+      href: "/super-admin/logs",
       icon: FaClipboardList,
     },
     {

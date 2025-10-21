@@ -8,7 +8,8 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { NavItem } from "@/types";
 import { NAV_ITEMS } from "@/config/navbar.config";
 import { useSelector } from "react-redux";
-import { RootState } from "@/store/store"; // adjust import if needed
+import { RootState } from "@/store/store";
+import { NAV_ROLE_MAP } from "@/config/role.config";
 
 type NavbarProps = {
   logoTitle?: string;
@@ -30,27 +31,22 @@ const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
- 
-
-  // ✅ Get user role from Redux
+  // Get user role from Redux
   const userRole = useSelector(
     (state: RootState) => state.auth.user?.data?.roles?.[0]
-    
-
   );
-  console.log(userRole);
-  const role = userRole ? userRole.toLowerCase() : "guest";
-  
-  
 
-  const navItems: NavItem[] = NAV_ITEMS[role] || NAV_ITEMS.guest;
+  // Normalize role for NAV_ITEMS
+  const roleKey = userRole ? NAV_ROLE_MAP[userRole] || "guest" : "guest";
   
+  const navItems: NavItem[] = NAV_ITEMS[roleKey];
+
+
 
   return (
     <nav className="fixed w-full z-50 bg-gradient-to-r from-pink-700 via-purple-700 to-indigo-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo + Title */}
           <Link href="/" className="flex items-center space-x-3">
             <Image
               src={logo}
