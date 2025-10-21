@@ -2,9 +2,10 @@ import { IconType } from "react-icons";
 
 export type NavItem = {
   label: string;
-  href: string;
+  href?: string; // optional, because some items may have actions instead
   icon?: IconType;
   cta?: boolean;
+  action?: "logout" | "customAction"; // optional action metadata
 };
 
 export type FieldType =
