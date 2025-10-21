@@ -10,10 +10,11 @@ import { NAV_ITEMS } from "@/config/navbar.config";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { NAV_ROLE_MAP } from "@/config/role.config";
-import Modal from "@/components/common/Modal";
+
 import useAuth from "@/hooks/authHooks/useAuth";
 import { clearAuth } from "@/store/auth-slice";
 import { useRouter } from "next/router";
+import { WarningModal } from "../Modals";
 
 type NavbarProps = {
   logoTitle?: string;
@@ -72,6 +73,10 @@ const Navbar: React.FC<NavbarProps> = ({
       console.error("Logout failed", err);
     }
   };
+
+  const handleCancel = () => {
+    setLogoutModalOpen(false);
+  }
 
   return (
     <>
@@ -202,12 +207,14 @@ const Navbar: React.FC<NavbarProps> = ({
       </nav>
 
       {/* Logout modal */}
-      <Modal
+      <WarningModal
         open={logoutModalOpen}
+        onClose={handleCancel}
         title="Logout"
-        subtitle="Do you want to logout?"
+        question="Are you sure you want to proceed? "
+        additionalText="You can’t undo this action later."
         onConfirm={handleLogoutConfirm}
-        onClose={() => setLogoutModalOpen(false)}
+        onCancel={handleCancel}
         confirmText="Logout"
         cancelText="Cancel"
       />
