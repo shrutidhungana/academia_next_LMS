@@ -82,7 +82,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Canada",
         ]),
       },
-      { name: "state", label: "State/Province", type: "text", required: false },
+      { name: "state", label: "State/Province", type: "text",  required: false },
       { name: "city", label: "City", type: "text", required: false },
       { name: "zip", label: "Zip/Postal Code", type: "text", required: false },
       {
@@ -115,13 +115,13 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
         type: "multiselect",
         required: true,
         options: toOptions([
-          "Super Admin",
+          "Super-Admin",
           "Admin",
           "Tenant Admin",
           "Instructor",
           "Student",
           "Parent",
-          "Guest",
+         
         ]),
       },
       {

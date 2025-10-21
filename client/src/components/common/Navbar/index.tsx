@@ -2,13 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { NavItem } from "@/types";
-import { HiMenu, HiX } from "react-icons/hi";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { HiMenu, HiX } from "react-icons/hi";
+import { NavItem } from "@/types";
+import { NAV_ITEMS } from "@/config/navbar.config";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { NAV_ROLE_MAP } from "@/config/role.config";
 
 type NavbarProps = {
-  navItems: NavItem[];
   logoTitle?: string;
   logo: string;
 };
@@ -23,17 +26,27 @@ const navItemVariants = {
 };
 
 const Navbar: React.FC<NavbarProps> = ({
-  navItems,
   logoTitle = "academia-next",
   logo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Get user role from Redux
+  const userRole = useSelector(
+    (state: RootState) => state.auth.user?.data?.roles?.[0]
+  );
+
+  // Normalize role for NAV_ITEMS
+  const roleKey = userRole ? NAV_ROLE_MAP[userRole] || "guest" : "guest";
+  
+  const navItems: NavItem[] = NAV_ITEMS[roleKey];
+
+
+
   return (
     <nav className="fixed w-full z-50 bg-gradient-to-r from-pink-700 via-purple-700 to-indigo-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo + Title */}
           <Link href="/" className="flex items-center space-x-3">
             <Image
               src={logo}
@@ -102,11 +115,10 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Slide Drawer Menu (NO GLASSMORPHISM) */}
+      {/* Slide Drawer Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Solid dark overlay (no transparency) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.8 }}
@@ -116,7 +128,6 @@ const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setMobileMenuOpen(false)}
             />
 
-            {/* Slide-in drawer */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}

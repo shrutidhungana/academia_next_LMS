@@ -1,3 +1,4 @@
+// src/routes/authRoutes.ts
 import express, { Router, Request, Response } from "express";
 import {
   register,
@@ -9,15 +10,16 @@ import {
   resetPassword,
   getAuthUser,
   resendOtp,
-  handleImageUpload
+  handleImageUpload,
 } from "../controllers/authController";
-import { verifyAccessToken } from "../services/tokenService";
-import { upload } from "../utils/cloudinary";
+import { authenticate } from "../middleware/authMiddleware";
+import { checkRole } from "../middleware/roleMiddleware";
 import { verifyCaptcha } from "../middleware/captchaMiddleware";
+import { upload } from "../utils/cloudinary";
 
 const router: Router = express.Router();
 
-// Public routes
+// -------------------- Public routes --------------------
 router.post("/register", verifyCaptcha, register);
 router.post("/confirm-email", confirmEmail);
 router.post("/login", login);
@@ -28,15 +30,22 @@ router.post("/logout", logout);
 router.post("/resend-otp", resendOtp);
 router.post("/upload-image", upload.single("file"), handleImageUpload);
 
-// Protected route
-router.get("/me", verifyAccessToken, getAuthUser);
+// -------------------- Protected routes --------------------
+// Requires valid access token
+router.get("/me", authenticate, getAuthUser);
 
-router.get("/check-auth", verifyAccessToken, (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: "User is authenticated",
-    user: (req as any).user, // user payload from middleware
-  });
-});
+// Example route with role-based access
+router.get(
+  "/check-auth",
+  authenticate,
+  checkRole("Super-Admin", "Admin", "Tenant Admin", "Instructor", "Student"),
+  (req: Request, res: Response) => {
+    res.json({
+      success: true,
+      message: "User is authenticated",
+      user: (req as any).user,
+    });
+  }
+);
 
 export default router;

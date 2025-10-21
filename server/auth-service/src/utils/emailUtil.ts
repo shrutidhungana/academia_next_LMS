@@ -17,6 +17,7 @@ export const sendEmailOtp = async (
 
   const now = new Date();
   const formattedDate = now.toLocaleString("en-US", {
+    timeZone: "Asia/Kathmandu",
     weekday: "long",
     year: "numeric",
     month: "long",

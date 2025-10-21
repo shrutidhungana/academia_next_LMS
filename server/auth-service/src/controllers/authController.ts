@@ -1,40 +1,42 @@
+// src/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import pool from "../database";
 import {
   createUser,
   findUserByEmail,
+  findUserById,
   verifyUserEmail,
 } from "../models/UserModel";
 import { createOtp, getOtp, deleteOtp } from "../models/OtpModel";
 import {
   saveRefreshToken,
   deleteRefreshToken,
+  getRefreshToken,
 } from "../models/RefreshTokenModel";
 import {
   generateAccessToken,
   generateRefreshToken,
-  verifyRefreshToken,
 } from "../services/tokenService";
 import { sendEmailOtp } from "../utils/emailUtil";
-import pool from "../database";
 import { imageUploadUtil } from "../utils/cloudinary";
+import jwt from "jsonwebtoken";
 
 const OTP_EXPIRY_MINUTES = 2;
 
 // -------------------- IMAGE UPLOAD --------------------
 export const handleImageUpload = async (req: Request, res: Response) => {
   try {
-    if (!req.file) {
+    if (!req.file)
       return res
         .status(400)
         .json({ success: false, message: "No file uploaded" });
-    }
 
-    const result = await imageUploadUtil(req.file.buffer);
+    const url = await imageUploadUtil(req.file.buffer);
 
     return res.json({
       success: true,
-      url: result,
+      url,
       message: "Image uploaded successfully",
     });
   } catch (error) {
@@ -44,6 +46,7 @@ export const handleImageUpload = async (req: Request, res: Response) => {
       .json({ success: false, message: "Image upload failed" });
   }
 };
+
 // -------------------- REGISTER --------------------
 export const register = async (req: Request, res: Response) => {
   try {
@@ -73,19 +76,16 @@ export const register = async (req: Request, res: Response) => {
       howDidYouHear,
     } = req.body;
 
-    // ✅ Confirm password validation
     if (password !== confirmPassword) {
-      return res.status(400).json({ status: 400, message: "Passwords do not match" });
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     const existing = await findUserByEmail(email);
-    if (existing) {
-      return res.status(409).json({ status: 409, message: "Email already registered" });
-    }
+    if (existing)
+      return res.status(409).json({ message: "Email already registered" });
 
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Normalize optional fields: empty strings -> null
     const user = await createUser({
       first_name: firstName,
       middle_name: middleName || null,
@@ -96,7 +96,7 @@ export const register = async (req: Request, res: Response) => {
       password_hash,
       gender: gender || null,
       marital_status: maritalStatus || null,
-      date_of_birth: dateOfBirth ? new Date(dateOfBirth) : null, 
+      date_of_birth: dateOfBirth ? new Date(dateOfBirth) : null,
       profile_picture: profilePicture || null,
       country,
       state: state || null,
@@ -104,34 +104,31 @@ export const register = async (req: Request, res: Response) => {
       zip: zip || null,
       address1: address1 || null,
       address2: address2 || null,
-      roles: roles || ["user"], // default role
+      roles: roles || ["Super-Admin", "Admin", "Tenant Admin", "Instructor", "Student"],
       organization: organization || null,
       department: department || null,
       job_title: jobTitle || null,
       how_did_you_hear: howDidYouHear || null,
     });
 
-    // Generate OTP for email verification
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
     await createOtp(user.id, otp, "verify_email", expiresAt);
     await sendEmailOtp(email, otp, "Confirm your email");
 
-    return res.status(201).json({
-      status: 201,
-      message: "User registered successfully. OTP sent to email.",
-      data: { email },
-    });
+    return res
+      .status(201)
+      .json({
+        message: "User registered successfully. OTP sent to email.",
+        email,
+      });
   } catch (err: any) {
-    console.error("Registration Error:", err.message, err.stack);
-    return res.status(500).json({
-      status: 500,
-      message: "Registration failed",
-      error: err.message,
-    });
+    console.error("Registration Error:", err);
+    return res
+      .status(500)
+      .json({ message: "Registration failed", error: err.message });
   }
 };
-
 
 // -------------------- CONFIRM EMAIL --------------------
 export const confirmEmail = async (req: Request, res: Response) => {
@@ -152,11 +149,10 @@ export const confirmEmail = async (req: Request, res: Response) => {
     await verifyUserEmail(user.id);
     await deleteOtp(user.id, "verify_email");
 
-    return res.json({ status: 200, message: "Email verified successfully" });
+    return res.json({ message: "Email verified successfully" });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ status: 500, message: "Verification failed" });
+    console.error("Confirm Email Error:", err);
+    return res.status(500).json({ message: "Verification failed" });
   }
 };
 
@@ -166,20 +162,18 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
 
-    if (!user || !user.is_email_verified) {
+    if (!user || !user.is_email_verified)
       return res
         .status(401)
         .json({ message: "Email not verified or user not found" });
-    }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
+    if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
-    }
 
     const accessToken = generateAccessToken(user.id, user.roles);
     const refreshToken = generateRefreshToken(user.id);
-    const refreshExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const refreshExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await saveRefreshToken(user.id, refreshToken, refreshExpiry);
 
@@ -190,7 +184,7 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ message: "Login successful", accessToken });
+    return res.json({ data:user, message: "Login successful", accessToken });
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ message: "Login failed" });
@@ -201,9 +195,8 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.refreshToken;
-    if (!token) return res.sendStatus(204);
+    if (token) await deleteRefreshToken(token);
 
-    await deleteRefreshToken(token);
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -212,6 +205,7 @@ export const logout = async (req: Request, res: Response) => {
 
     return res.json({ message: "Logout successful" });
   } catch (err) {
+    console.error("Logout Error:", err);
     return res.status(500).json({ message: "Logout failed" });
   }
 };
@@ -220,13 +214,23 @@ export const logout = async (req: Request, res: Response) => {
 export const refreshToken = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.refreshToken;
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No refresh token" });
 
-    const payload = verifyRefreshToken(token) as any;
-    const accessToken = generateAccessToken(payload.userId, []);
+    const savedToken = await getRefreshToken(token);
+    if (!savedToken)
+      return res.status(403).json({ message: "Refresh token invalid" });
 
-    return res.json({ accessToken });
+    const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as any;
+    const user = await findUserById(payload.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const newAccessToken = generateAccessToken(user.id, user.roles);
+    return res.json({ accessToken: newAccessToken });
   } catch (err) {
+    console.error("Refresh Token Error:", err);
     return res.status(403).json({ message: "Invalid refresh token" });
   }
 };
@@ -245,6 +249,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     return res.json({ message: "OTP sent to email" });
   } catch (err) {
+    console.error("Forgot Password Error:", err);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
@@ -266,23 +271,17 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     const password_hash = await bcrypt.hash(newPassword, 10);
-    await deleteOtp(user.id, "reset_password");
-
     await pool.query(
-      "UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2",
+      "UPDATE users SET password_hash=$1, updated_at=NOW() WHERE id=$2",
       [password_hash, user.id]
     );
+    await deleteOtp(user.id, "reset_password");
 
     return res.json({ message: "Password reset successful" });
   } catch (err) {
+    console.error("Reset Password Error:", err);
     return res.status(500).json({ message: "Reset failed" });
   }
-};
-
-// -------------------- GET AUTH USER --------------------
-export const getAuthUser = async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  return res.json({ message: "Authenticated", data: user });
 };
 
 // -------------------- RESEND OTP --------------------
@@ -299,9 +298,15 @@ export const resendOtp = async (req: Request, res: Response) => {
     await createOtp(user.id, otp, purpose, expiresAt);
     await sendEmailOtp(email, otp, "Your new OTP code");
 
-    return res.json({ status: 200, message: "New OTP sent to email" });
+    return res.json({ message: "New OTP sent to email" });
   } catch (err: any) {
-    console.error("Resend OTP Error:", err.message);
+    console.error("Resend OTP Error:", err);
     return res.status(500).json({ message: "Resend OTP failed" });
   }
+};
+
+// -------------------- GET AUTH USER --------------------
+export const getAuthUser = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  return res.json({ message: "Authenticated", data: user });
 };

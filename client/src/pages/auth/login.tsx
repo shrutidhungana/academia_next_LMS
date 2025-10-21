@@ -1,22 +1,68 @@
+"use client";
+
 import React, { useState } from "react";
 import AuthLayout from "@/components/auth/layout";
 import CommonForm from "@/components/common/Forms";
 import ContinueWithButtons from "@/components/auth/oauth";
-import { LOGIN_FORM_FIELDS} from "@/config/form.config";
+import { LOGIN_FORM_FIELDS } from "@/config/form.config";
 import { SOCIAL_PROVIDERS } from "@/config/oauth.config";
 import Link from "next/link";
+import useAuth from "@/hooks/authHooks/useAuth";
+import { useToast } from "@/hooks/useToast";
+import { useDispatch } from "react-redux";
+import { setUser, setAccessToken } from "@/store/auth-slice";
+import { useRouter } from "next/router";
+import { ROLE_REDIRECT_MAP } from "@/config/role.config";
 
 type FormData = {
   [key: string]: unknown;
 };
 
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({ roles: [] });
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  });
+  const { loginMutation } = useAuth();
+  const { showError, showSuccess } = useToast();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // TODO: Add validation & API call
+    try {
+      const res = await loginMutation.mutateAsync({
+        email: formData.email as string,
+        password: formData.password as string,
+      });
+
+      if (res?.accessToken) {
+        // Store in Redux
+        dispatch(setUser(res));
+        dispatch(setAccessToken(res.accessToken));
+
+        // Store in localStorage
+        localStorage.setItem("accessToken", res.accessToken);
+
+        showSuccess("Login successful!");
+
+        // --- Redirect based on role ---
+        const role = res?.data?.roles?.[0];
+        const redirectPath = role ? ROLE_REDIRECT_MAP[role] : undefined;
+
+       
+
+        if (redirectPath) {
+          router.push(redirectPath);
+          return;
+        }
+
+        // fallback
+        router.push("/");
+      }
+    } catch (err: any) {
+      showError(err.response?.data?.message || "Login failed");
+    }
   };
 
   const handleProviderClick = (providerId: string) => {
@@ -27,10 +73,9 @@ const Login: React.FC = () => {
   return (
     <AuthLayout
       title="Welcome to Academia-Next"
-      subtitle="Login to  your account now"
+      subtitle="Login to your account now"
     >
       <div className="w-full max-w-3xl space-y-6">
-        {/* Registration form */}
         <CommonForm
           formControls={LOGIN_FORM_FIELDS}
           formData={formData}
@@ -38,6 +83,7 @@ const Login: React.FC = () => {
           onSubmit={handleSubmit}
           buttonText="Login"
         />
+
         <p className="text-sm text-right mt-1">
           <Link
             href="/auth/forget-password"
@@ -46,12 +92,11 @@ const Login: React.FC = () => {
             Forgot your password?
           </Link>
         </p>
-        {/* Divider text */}
+
         <div className="mt-10 text-center text-sm text-muted-foreground">
           OR CONTINUE WITH
         </div>
 
-        {/* Social login buttons */}
         <ContinueWithButtons
           providers={SOCIAL_PROVIDERS.map((provider) => ({
             ...provider,
@@ -59,7 +104,6 @@ const Login: React.FC = () => {
           }))}
         />
 
-        {/* Login link */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
@@ -72,6 +116,6 @@ const Login: React.FC = () => {
       </div>
     </AuthLayout>
   );
-}
+};
 
 export default Login;
