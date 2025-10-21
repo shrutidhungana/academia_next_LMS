@@ -38,7 +38,7 @@ router.get("/me", authenticate, getAuthUser);
 router.get(
   "/check-auth",
   authenticate,
-  checkRole("admin", "user"),
+  checkRole("Super-Admin", "Admin", "Tenant Admin", "Instructor", "Student"),
   (req: Request, res: Response) => {
     res.json({
       success: true,

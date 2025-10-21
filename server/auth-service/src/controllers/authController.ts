@@ -104,7 +104,7 @@ export const register = async (req: Request, res: Response) => {
       zip: zip || null,
       address1: address1 || null,
       address2: address2 || null,
-      roles: roles || ["user"],
+      roles: roles || ["Super-Admin", "Admin", "Tenant Admin", "Instructor", "Student"],
       organization: organization || null,
       department: department || null,
       job_title: jobTitle || null,
@@ -184,7 +184,7 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ message: "Login successful", accessToken });
+    return res.json({ data:user, message: "Login successful", accessToken });
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ message: "Login failed" });

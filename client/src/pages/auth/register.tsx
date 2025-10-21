@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { useToast } from "@/hooks/useToast";
 import useAuth from "@/hooks/authHooks/useAuth";
-import { setUser, setAccessToken } from "@/store/auth-slice";
+import { setUser } from "@/store/auth-slice";
 import { RegisterPayload } from "@/types";
 import { useRouter } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -46,7 +46,8 @@ const defaultFormData: RegisterPayload = {
 };
 
 
- const [formData, setFormData] = useState<RegisterPayload>(defaultFormData);
+  const [formData, setFormData] = useState<RegisterPayload>(defaultFormData);
+  
   const dispatch = useDispatch();
   const { showSuccess, showError } = useToast();
   const { registerMutation, uploadImageMutation } = useAuth();
@@ -104,7 +105,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     // 6️⃣ Dispatch user & access token if available
     const user = response.data;
     dispatch(setUser(user));
-    if (user.accessToken) dispatch(setAccessToken(user.accessToken));
+   
 
     // 7️⃣ Reset form fields
     const resetData = Object.keys(formData).reduce((acc, key) => {

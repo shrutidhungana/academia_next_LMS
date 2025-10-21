@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HiMenu, HiX } from "react-icons/hi";
 import { NavItem } from "@/types";
 import { NAV_ITEMS } from "@/config/navbar.config";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store"; // adjust import if needed
 
 type NavbarProps = {
-  role?: "guest" | "superAdmin"; // add other roles later
   logoTitle?: string;
   logo: string;
 };
@@ -24,14 +25,26 @@ const navItemVariants = {
 };
 
 const Navbar: React.FC<NavbarProps> = ({
-  role = "guest",
   logoTitle = "academia-next",
   logo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Pick nav items based on role
+ 
+
+  // ✅ Get user role from Redux
+  const userRole = useSelector(
+    (state: RootState) => state.auth.user?.data?.roles?.[0]
+    
+
+  );
+  console.log(userRole);
+  const role = userRole ? userRole.toLowerCase() : "guest";
+  
+  
+
   const navItems: NavItem[] = NAV_ITEMS[role] || NAV_ITEMS.guest;
+  
 
   return (
     <nav className="fixed w-full z-50 bg-gradient-to-r from-pink-700 via-purple-700 to-indigo-800 shadow-lg">

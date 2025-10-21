@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import { apiEndpoints } from "@/utils/authAPI";
 import {
   RegisterPayload,
@@ -28,44 +30,52 @@ const {
 const useAuth = () => {
   const queryClient = useQueryClient();
 
-  // ---------------- Queries ----------------
+  const getAccessToken = () => {
+    if (typeof window !== "undefined")
+      return localStorage.getItem("accessToken");
+    return null;
+  };
+
   const authUserQuery = useQuery<UserResponse, Error>({
     queryKey: ["authUser"],
     queryFn: async () => {
+      const token = getAccessToken();
+      if (!token) throw new Error("No access token");
+
       const res = await axios.get<UserResponse>(verifyAccessToken, {
-        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     },
-    staleTime: 1000 * 60 * 5,
+    enabled: !!getAccessToken(),
   });
 
   const checkAuthQuery = useQuery<{ authenticated: boolean }, Error>({
     queryKey: ["checkAuth"],
     queryFn: async () => {
+      const token = getAccessToken();
+      if (!token) return { authenticated: false };
+
       const res = await axios.get<{ authenticated: boolean }>(auth, {
-        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     },
+    enabled: !!getAccessToken(),
   });
 
   // ---------------- Mutations ----------------
- const registerMutation = useMutation<
-   {
-     status: number;
-     message: string;
-     data: UserResponse;
-   },
-   Error,
-   RegisterPayload
- >({
-   mutationFn: async (payload: RegisterPayload) => {
-     const res = await axios.post(register, payload);
-     return res.data; // {status, message, data}
-   },
-   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
- });
+  const registerMutation = useMutation<
+    { status: number; message: string; data: UserResponse },
+    Error,
+    RegisterPayload
+  >({
+    mutationFn: async (payload: RegisterPayload) => {
+      const res = await axios.post(register, payload);
+      return res.data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+  });
 
   const confirmEmailMutation = useMutation<
     UserResponse,
@@ -133,9 +143,7 @@ const useAuth = () => {
       );
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ["authUser"] });
-    },
+    onSuccess: () => queryClient.removeQueries({ queryKey: ["authUser"] }),
   });
 
   const resendOtpMutation = useMutation<
@@ -149,24 +157,21 @@ const useAuth = () => {
     },
   });
 
-   const uploadImageMutation = useMutation<{ url: string }, Error, File>({
-     mutationFn: async (file: File) => {
-       const formData = new FormData();
-       formData.append("file", file);
-       const res = await axios.post<{ url: string }>(upload, formData, {
-         headers: { "Content-Type": "multipart/form-data" },
-         withCredentials: true,
-       });
-       return res.data;
-     },
-   });
+  const uploadImageMutation = useMutation<{ url: string }, Error, File>({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axios.post<{ url: string }>(upload, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
+      return res.data;
+    },
+  });
 
   return {
-    // Queries
     authUserQuery,
     checkAuthQuery,
-
-    // Mutations
     registerMutation,
     confirmEmailMutation,
     loginMutation,

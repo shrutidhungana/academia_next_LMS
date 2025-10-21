@@ -13,6 +13,15 @@ import { useRouter } from "next/router";
 
 type FormData = {
   [key: string]: unknown;
+
+};
+
+const roleRedirectMap: Record<string, string> = {
+  SuperAdmin: "/super-admin/dashboard",
+  Admin: "/admin/dashboard",
+  TenantAdmin: "/tenant/dashboard",
+  Instructor: "/instructor/dashboard",
+  Student: "/student/dashboard",
 };
 
 const Login: React.FC = () => {
@@ -26,24 +35,37 @@ const Login: React.FC = () => {
    const router = useRouter();
 
    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-     e.preventDefault();
-     try {
-       const res = await loginMutation.mutateAsync({
-         email: formData.email as string,
-         password: formData.password as string,
-       });
+  e.preventDefault();
+  try {
+    const res = await loginMutation.mutateAsync({
+      email: formData.email as string,
+      password: formData.password as string,
+    });
 
-       if (res?.accessToken) {
-         dispatch(setUser(res));
-         dispatch(setAccessToken(res.accessToken));
+    if (res?.accessToken) {
+      // Store in Redux
+      dispatch(setUser(res));
+      dispatch(setAccessToken(res.accessToken));
 
-         showSuccess("Login successful!");
-         // Redirect handled by CheckAuthComponent on next render
-       }
-     } catch (err: any) {
-       showError(err.response?.data?.message || "Login failed");
-     }
-   };
+      // Store in localStorage
+      localStorage.setItem("accessToken", res.accessToken);
+
+      showSuccess("Login successful!");
+
+      // --- Redirect based on role ---
+      const role = res.roles?.[0];
+      if (role && roleRedirectMap[role]) {
+        router.push(roleRedirectMap[role]);
+        return;
+      }
+
+      // Fallback
+      router.push("/");
+    }
+  } catch (err: any) {
+    showError(err.response?.data?.message || "Login failed");
+  }
+};
 
   const handleProviderClick = (providerId: string) => {
     alert(`${providerId} login clicked`);
