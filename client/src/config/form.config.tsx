@@ -82,7 +82,7 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Canada",
         ]),
       },
-      { name: "state", label: "State/Province", type: "text",  required: false },
+      { name: "state", label: "State/Province", type: "text", required: false },
       { name: "city", label: "City", type: "text", required: false },
       { name: "zip", label: "Zip/Postal Code", type: "text", required: false },
       {
@@ -121,7 +121,6 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
           "Instructor",
           "Student",
           "Parent",
-         
         ]),
       },
       {
@@ -288,6 +287,35 @@ export const REGISTER_FORM_FIELDS: FormSection[] = [
 ];
 
 export const LOGIN_FORM_FIELDS: FormField[] = [
-  { name: "email", label: "Email ", type: "email", required: true },
+  {
+    name: "email",
+    label: "Email ",
+    type: "email",
+    required: true,
+  },
   { name: "password", label: "Password ", type: "password", required: true },
+];
+
+export const FORGOT_PASSWORD_FORM_FIELDS: FormField[] = [
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    required: true,
+  },
+];
+
+export const RESET_PASSWORD_FORM_FIELDS = [
+  {
+    name: "password",
+    label: "New Password",
+    type: "password",
+    required: true,
+  },
+  {
+    name: "confirmPassword",
+    label: "Confirm Password",
+    type: "password",
+    required: true,
+  },
 ];

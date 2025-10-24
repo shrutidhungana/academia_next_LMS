@@ -26,6 +26,7 @@ export type FormField = {
   label: string | React.ReactNode; // ✅ Allow JSX labels
   type: FieldType;
   required: boolean;
+ 
   options?: { id: string; label: string }[];
 };
 
