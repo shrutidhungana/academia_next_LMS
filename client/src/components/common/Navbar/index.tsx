@@ -67,6 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({
       dispatch(clearAuth());
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("_grecaptcha")
       setLogoutModalOpen(false);
       router.push("/auth/login");
     } catch (err) {
@@ -212,10 +213,10 @@ const Navbar: React.FC<NavbarProps> = ({
         onClose={handleCancel}
         title="Logout"
         question="Are you sure you want to proceed? "
-        additionalText="You can’t undo this action later."
+        additionalText="You will again need to login once you logout"
         onConfirm={handleLogoutConfirm}
         onCancel={handleCancel}
-        confirmText="Logout"
+        confirmText="Confirm"
         cancelText="Cancel"
       />
     </>
