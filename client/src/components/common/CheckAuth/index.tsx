@@ -6,6 +6,10 @@ import useAuth from "@/hooks/authHooks/useAuth";
 import { setUser, setAccessToken, clearAuth } from "@/store/auth-slice";
 import { useToast } from "@/hooks/useToast";
 import { UserData } from "@/types";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { ROLE_REDIRECT_MAP } from "@/config/role.config";
 
 const CheckAuthComponent: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -14,7 +18,30 @@ const CheckAuthComponent: React.FC<{ children: React.ReactNode }> = ({
   const { showError } = useToast();
   const [loading, setLoading] = useState(true);
 
+  const router = useRouter();
+  const userRole = useSelector(
+    (state: RootState) => state.auth.user?.data?.roles?.[0]
+  );
+
   const { authUserQuery, checkAuthQuery, refreshTokenMutation } = useAuth();
+
+  useEffect(() => {
+    if (!userRole) {
+      if (router.pathname.startsWith("/guest")) {
+        setLoading(false);
+      } else {
+        router.replace("/"); // redirect to login
+      }
+    } else {
+      // User is logged in, check role-based redirect
+      const allowedPath = ROLE_REDIRECT_MAP[userRole];
+      if (!router.pathname.startsWith(allowedPath)) {
+        router.replace(allowedPath); // redirect to role-based default page
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [userRole]);
 
   // Hydrate Redux from localStorage on mount
   useEffect(() => {
