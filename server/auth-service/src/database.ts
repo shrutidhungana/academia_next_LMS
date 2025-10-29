@@ -1,21 +1,11 @@
-import pg from "pg";
-import dotenv from "dotenv";
+// src/database.ts
+import { PrismaClient } from "@prisma/client";
 
-dotenv.config();
+const prisma = new PrismaClient();
 
-const { Pool } = pg;
+prisma
+  .$connect()
+  .then(() => console.log("🚀 Connected to PostgreSQL via Prisma"))
+  .catch((err: unknown) => console.error("❌ Prisma Connection Error:", err));
 
-const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.POSTGRES_HOST,
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: Number(process.env.POSTGRES_PORT) || 5432,
-});
-
-pool
-  .connect()
-  .then(() => console.log("🚀 Connected to PostgreSQL (auth-service)"))
-  .catch((err) => console.error("❌ PostgreSQL Connection Error:", err));
-
-export default pool;
+export default prisma;

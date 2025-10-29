@@ -1,34 +1,28 @@
-import pool from "../database";
+import prisma from "../database";
 
+// CREATE OTP
 export const createOtp = async (
   userId: number,
   otp: string,
   purpose: string,
   expiresAt: Date
-): Promise<void> => {
-  await pool.query(
-    `INSERT INTO otps (user_id, otp, purpose, expires_at) 
-     VALUES ($1, $2, $3, $4)`,
-    [userId, otp, purpose, expiresAt]
-  );
+) => {
+  await prisma.otp.create({
+    data: { userId, otp, purpose, expires_at: expiresAt },
+  });
 };
 
-export const getOtp = async (userId: number, purpose: string): Promise<any> => {
-  const result = await pool.query(
-    `SELECT * FROM otps 
-     WHERE user_id = $1 AND purpose = $2 
-     ORDER BY created_at DESC LIMIT 1`,
-    [userId, purpose]
-  );
-  return result.rows[0] || null;
+// GET OTP
+export const getOtp = async (userId: number, purpose: string) => {
+  return await prisma.otp.findFirst({
+    where: { userId, purpose },
+    orderBy: { created_at: "desc" },
+  });
 };
 
-export const deleteOtp = async (
-  userId: number,
-  purpose: string
-): Promise<void> => {
-  await pool.query(`DELETE FROM otps WHERE user_id = $1 AND purpose = $2`, [
-    userId,
-    purpose,
-  ]);
+// DELETE OTP
+export const deleteOtp = async (userId: number, purpose: string) => {
+  await prisma.otp.deleteMany({
+    where: { userId, purpose },
+  });
 };

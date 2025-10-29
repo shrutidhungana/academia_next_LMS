@@ -1,4 +1,3 @@
-// src/routes/authRoutes.ts
 import express, { Router, Request, Response } from "express";
 import {
   register,
@@ -20,6 +19,8 @@ import { upload } from "../utils/cloudinary";
 const router: Router = express.Router();
 
 // -------------------- Public routes --------------------
+
+
 router.post("/register", verifyCaptcha, register);
 router.post("/confirm-email", confirmEmail);
 router.post("/login", login);
@@ -31,10 +32,11 @@ router.post("/resend-otp", resendOtp);
 router.post("/upload-image", upload.single("file"), handleImageUpload);
 
 // -------------------- Protected routes --------------------
-// Requires valid access token
+
+
 router.get("/me", authenticate, getAuthUser);
 
-// Example route with role-based access
+
 router.get(
   "/check-auth",
   authenticate,
