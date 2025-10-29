@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { IconType } from "react-icons";
 
 export type NavItem = {
@@ -138,3 +139,10 @@ export type UserResponse = {
   success?: boolean;
   data?: User
 };
+
+export interface AboutCard {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}
+
