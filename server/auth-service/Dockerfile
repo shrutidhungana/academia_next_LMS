@@ -1,23 +1,28 @@
-# Base image with Node and Alpine (lightweight)
+# Dockerfile (server/auth-service/Dockerfile)
+
+# 1. Base image
 FROM node:18-alpine
 
-# Set working directory in the container
+# 2. Set working directory
 WORKDIR /app
 
-# Copy package files first (for layer caching)
+# 3. Copy package.json and lockfile first (for caching)
 COPY package.json package-lock.json ./
 
-# Install dependencies
+# 4. Install dependencies
 RUN npm install
 
-# Copy the rest of your source code
+# 5. Copy the rest of the source code
 COPY . .
 
-# Build the TypeScript code
+# 6. Build TypeScript
 RUN npm run build
 
-# Expose the port the app runs on
+# 7. Expose port
 EXPOSE 5000
 
-# Start the built server
-CMD ["npm", "start"]
+# 8. Start container: generate Prisma client, run migrations, start server
+# Use prod start: compiled JS
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npm run start:prod"]
+
+

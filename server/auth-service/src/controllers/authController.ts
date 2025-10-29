@@ -1,7 +1,7 @@
-// src/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import pool from "../database";
+import jwt from "jsonwebtoken";
+import prisma from "../database";
 import {
   createUser,
   findUserByEmail,
@@ -20,7 +20,6 @@ import {
 } from "../services/tokenService";
 import { sendEmailOtp } from "../utils/emailUtil";
 import { imageUploadUtil } from "../utils/cloudinary";
-import jwt from "jsonwebtoken";
 
 const OTP_EXPIRY_MINUTES = 2;
 
@@ -104,7 +103,13 @@ export const register = async (req: Request, res: Response) => {
       zip: zip || null,
       address1: address1 || null,
       address2: address2 || null,
-      roles: roles || ["Super-Admin", "Admin", "Tenant Admin", "Instructor", "Student"],
+      roles: roles || [
+        "Super-Admin",
+        "Admin",
+        "Tenant Admin",
+        "Instructor",
+        "Student",
+      ],
       organization: organization || null,
       department: department || null,
       job_title: jobTitle || null,
@@ -113,15 +118,14 @@ export const register = async (req: Request, res: Response) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
+
     await createOtp(user.id, otp, "verify_email", expiresAt);
     await sendEmailOtp(email, otp, "Confirm your email");
 
-    return res
-      .status(201)
-      .json({
-        message: "User registered successfully. OTP sent to email.",
-        email,
-      });
+    return res.status(201).json({
+      message: "User registered successfully. OTP sent to email.",
+      email,
+    });
   } catch (err: any) {
     console.error("Registration Error:", err);
     return res
@@ -138,11 +142,7 @@ export const confirmEmail = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const savedOtp = await getOtp(user.id, "verify_email");
-    if (
-      !savedOtp ||
-      savedOtp.otp !== otp ||
-      new Date(savedOtp.expires_at) < new Date()
-    ) {
+    if (!savedOtp || savedOtp.otp !== otp || savedOtp.expires_at < new Date()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
@@ -162,10 +162,11 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await findUserByEmail(email);
 
-    if (!user || !user.is_email_verified)
+    if (!user || !user.is_email_verified) {
       return res
         .status(401)
         .json({ message: "Email not verified or user not found" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch)
@@ -184,7 +185,7 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ data:user, message: "Login successful", accessToken });
+    return res.json({ data: user, message: "Login successful", accessToken });
   } catch (err) {
     console.error("Login Error:", err);
     return res.status(500).json({ message: "Login failed" });
@@ -192,24 +193,16 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // -------------------- LOGOUT --------------------
-
 export const logout = async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.refreshToken;
-    
 
     if (token) {
-      try {
-        await deleteRefreshToken(token);
-      } catch (dbErr) {
-        console.error("Failed to delete refresh token from DB:", dbErr);
-        // don't throw, we still want to clear cookie
-      }
-    } else {
-      console.warn("No refresh token cookie found during logout");
+      await deleteRefreshToken(token).catch((err) =>
+        console.error("Failed to delete refresh token:", err)
+      );
     }
 
-    // Clear the cookie regardless of DB outcome
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -219,11 +212,9 @@ export const logout = async (req: Request, res: Response) => {
     return res.json({ message: "Logout successful" });
   } catch (err) {
     console.error("Unexpected logout error:", err);
-    // Always return success to avoid frontend breaking
     return res.json({ message: "Logout successful" });
   }
 };
-
 
 // -------------------- REFRESH TOKEN --------------------
 export const refreshToken = async (req: Request, res: Response) => {
@@ -259,6 +250,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60000);
+
     await createOtp(user.id, otp, "reset_password", expiresAt);
     await sendEmailOtp(email, otp, "Reset your password");
 
@@ -277,19 +269,16 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const savedOtp = await getOtp(user.id, "reset_password");
-    if (
-      !savedOtp ||
-      savedOtp.otp !== otp ||
-      new Date(savedOtp.expires_at) < new Date()
-    ) {
+    if (!savedOtp || savedOtp.otp !== otp || savedOtp.expires_at < new Date()) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
     const password_hash = await bcrypt.hash(newPassword, 10);
-    await pool.query(
-      "UPDATE users SET password_hash=$1, updated_at=NOW() WHERE id=$2",
-      [password_hash, user.id]
-    );
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password_hash, updated_at: new Date() },
+    });
+
     await deleteOtp(user.id, "reset_password");
 
     return res.json({ message: "Password reset successful" });

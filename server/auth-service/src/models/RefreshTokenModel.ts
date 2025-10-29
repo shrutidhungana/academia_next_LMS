@@ -1,25 +1,27 @@
-import pool from "../database";
+import prisma from "../database";
 
 export const saveRefreshToken = async (
   userId: number,
   token: string,
   expiresAt: Date
-): Promise<void> => {
-  await pool.query(
-    `INSERT INTO refresh_tokens (user_id, token, expires_at) 
-     VALUES ($1, $2, $3)`,
-    [userId, token, expiresAt]
-  );
+) => {
+  await prisma.refreshToken.create({
+    data: {
+      userId, // use exact schema field
+      token,
+      expires_at: expiresAt,
+    },
+  });
 };
 
 export const getRefreshToken = async (token: string) => {
-  const result = await pool.query(
-    `SELECT * FROM refresh_tokens WHERE token = $1`,
-    [token]
-  );
-  return result.rows[0] || null;
+  return prisma.refreshToken.findFirst({
+    where: { token },
+  });
 };
 
-export const deleteRefreshToken = async (token: string): Promise<void> => {
-  await pool.query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
+export const deleteRefreshToken = async (token: string) => {
+  await prisma.refreshToken.deleteMany({
+    where: { token },
+  });
 };
